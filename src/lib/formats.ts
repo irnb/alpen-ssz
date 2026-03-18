@@ -12,11 +12,11 @@ export const inputFormats: Record<string, InputFormat> = {
   yaml: {
     parse: (raw, type) => type.fromJson(parseYaml(raw)),
     dump: (value, type) =>
-      dumpYaml(type.toJson(typeof value === "number" ? value.toString() : value)),
+      dumpYaml(type.toJson((typeof value === "number" ? value.toString() : value) as never)),
   },
   json: {
     parse: (raw, type) => type.fromJson(JSON.parse(raw)),
-    dump: (value, type) => JSON.stringify(type.toJson(value), null, 2),
+    dump: (value, type) => JSON.stringify(type.toJson(value as never), null, 2),
   },
   hex: {
     parse: (raw, type) => type.deserialize(fromHexString(raw)),
@@ -47,10 +47,10 @@ type DeserializeOutputFormat = {
 export const deserializeOutputFormats: Record<string, DeserializeOutputFormat> = {
   yaml: {
     dump: (value, type) =>
-      dumpYaml(type.toJson(typeof value === "number" ? value.toString() : value)),
+      dumpYaml(type.toJson((typeof value === "number" ? value.toString() : value) as never)),
   },
   json: {
-    dump: (value, type) => JSON.stringify(type.toJson(value), null, 2),
+    dump: (value, type) => JSON.stringify(type.toJson(value as never), null, 2),
   },
 };
 

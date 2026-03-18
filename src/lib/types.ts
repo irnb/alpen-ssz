@@ -10,17 +10,26 @@ import {
 } from "@chainsafe/ssz";
 import { ssz } from "@lodestar/types";
 
-let {
-  phase0,
-  altair,
-  bellatrix,
-  capella,
-  deneb,
-  electra,
-  fulu,
-  // intentionally dropped: sszTypesFor, gloas — not used by the app
-  ...primitive
+const {
+  phase0: _phase0,
+  altair: _altair,
+  bellatrix: _bellatrix,
+  capella: _capella,
+  deneb: _deneb,
+  electra: _electra,
+  fulu: _fulu,
+  sszTypesFor: _sszTypesFor,
+  gloas: _gloas,
+  ...primitive0
 } = ssz;
+
+let phase0 = _phase0;
+let altair = _altair;
+let bellatrix = _bellatrix;
+let capella = _capella;
+let deneb = _deneb;
+let electra = _electra;
+let fulu = _fulu;
 
 phase0 = patchSszTypes(phase0);
 altair = patchSszTypes(altair);
@@ -29,7 +38,7 @@ capella = patchSszTypes(capella);
 deneb = patchSszTypes(deneb);
 electra = patchSszTypes(electra);
 fulu = patchSszTypes(fulu);
-primitive = patchSszTypes(primitive);
+let primitive = patchSszTypes(primitive0);
 
 export const forks = {
   phase0: { ...phase0, ...primitive },
@@ -39,7 +48,7 @@ export const forks = {
   deneb: { ...phase0, ...altair, ...bellatrix, ...capella, ...deneb, ...primitive },
   electra: { ...phase0, ...altair, ...bellatrix, ...capella, ...deneb, ...electra, ...primitive },
   fulu: { ...phase0, ...altair, ...bellatrix, ...capella, ...deneb, ...electra, ...fulu, ...primitive },
-} as Record<string, Record<string, Type<unknown>>>;
+} as unknown as Record<string, Record<string, Type<unknown>>>;
 
 export type ForkName = keyof typeof forks;
 
