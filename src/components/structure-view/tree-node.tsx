@@ -8,7 +8,7 @@ type TreeNodeProps = {
 
 const VALUE_TRUNCATE_LEN = 64;
 
-function LeafValue({value}: {value: string}) {
+function LeafValue({value, suffix}: {value: string; suffix: string | null}) {
   const [expanded, setExpanded] = useState(false);
   const isLong = value.length > VALUE_TRUNCATE_LEN;
 
@@ -33,7 +33,9 @@ function LeafValue({value}: {value: string}) {
       ) : (
         <>
           {value.slice(0, VALUE_TRUNCATE_LEN)}
-          <span className="text-[var(--color-text-muted)]">... ({value.length} chars)</span>
+          <span className="text-[var(--color-text-muted)]">
+            {suffix ? `\u2026 ${suffix}` : `\u2026`}
+          </span>
         </>
       )}
     </span>
@@ -80,7 +82,7 @@ export function TreeNode({node, depth = 0}: TreeNodeProps) {
 
         {/* Value (leaf nodes) */}
         {node.value != null && (
-          <LeafValue value={node.value} />
+          <LeafValue value={node.value} suffix={node.valueSuffix} />
         )}
       </div>
 

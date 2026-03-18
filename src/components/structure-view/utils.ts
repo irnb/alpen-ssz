@@ -23,6 +23,8 @@ export type TreeNodeData = {
   typeName: string;
   category: SszCategory;
   value: string | null;
+  /** Semantic summary shown when value is truncated (e.g. "32 bytes", "4096 bits") */
+  valueSuffix: string | null;
   children: TreeNodeData[] | null;
   gindex: string;
 };
@@ -64,19 +66,26 @@ export function isLeafType(type: Type<unknown>): boolean {
   return cat === "uint" || cat === "boolean" || cat === "bytes";
 }
 
-function formatValue(value: unknown): string {
-  if (value === undefined || value === null) return "null";
-  if (typeof value === "bigint") return value.toString();
-  if (typeof value === "boolean") return String(value);
-  if (typeof value === "number") return String(value);
+function formatValue(value: unknown): {text: string; suffix: string | null} {
+  if (value === undefined || value === null) return {text: "null", suffix: null};
+  if (typeof value === "bigint") return {text: value.toString(), suffix: null};
+  if (typeof value === "boolean") return {text: String(value), suffix: null};
+  if (typeof value === "number") return {text: String(value), suffix: null};
   if (value instanceof BitArray) {
     const bools = value.toBoolArray();
-    return bools.map((b) => (b ? "1" : "0")).join("");
+    const set = bools.filter(Boolean).length;
+    return {
+      text: bools.map((b) => (b ? "1" : "0")).join(""),
+      suffix: `${value.bitLen} bits, ${set} set`,
+    };
   }
   if (value instanceof Uint8Array) {
-    return `0x${Array.from(value, (b) => b.toString(16).padStart(2, "0")).join("")}`;
+    return {
+      text: `0x${Array.from(value, (b) => b.toString(16).padStart(2, "0")).join("")}`,
+      suffix: `${value.length} bytes`,
+    };
   }
-  return String(value);
+  return {text: String(value), suffix: null};
 }
 
 export function buildTree(type: Type<unknown>, data: unknown, key: string, gindex: string): TreeNodeData {
@@ -84,7 +93,8 @@ export function buildTree(type: Type<unknown>, data: unknown, key: string, ginde
   const typeName = getTypeName(type);
 
   if (isLeafType(type)) {
-    return {key, typeName, category, value: formatValue(data), children: null, gindex};
+    const {text, suffix} = formatValue(data);
+    return {key, typeName, category, value: text, valueSuffix: suffix, children: null, gindex};
   }
 
   if (type instanceof ContainerType) {
@@ -96,7 +106,7 @@ export function buildTree(type: Type<unknown>, data: unknown, key: string, ginde
       const fieldData = data && typeof data === "object" ? (data as Record<string, unknown>)[fieldName] : undefined;
       return buildTree(fields[fieldName], fieldData, fieldName, fieldGindex);
     });
-    return {key, typeName, category, value: null, children, gindex};
+    return {key, typeName, category, value: null, valueSuffix: null, children, gindex};
   }
 
   if (
@@ -118,14 +128,16 @@ export function buildTree(type: Type<unknown>, data: unknown, key: string, ginde
         typeName: "",
         category: "unknown",
         value: null,
+        valueSuffix: null,
         children: null,
         gindex: "",
       });
     }
-    return {key, typeName: `${typeName} (${items.length})`, category, value: null, children, gindex};
+    return {key, typeName: `${typeName} (${items.length})`, category, value: null, valueSuffix: null, children, gindex};
   }
 
-  return {key, typeName, category, value: formatValue(data), children: null, gindex};
+  const {text, suffix} = formatValue(data);
+  return {key, typeName, category, value: text, valueSuffix: suffix, children: null, gindex};
 }
 
 export const categoryColors: Record<SszCategory, string> = {
