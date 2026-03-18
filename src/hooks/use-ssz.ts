@@ -34,8 +34,11 @@ export function useSsz(
       return;
     }
 
-    // In deserialize mode, input must be valid hex — skip if it's stale non-hex data
+    // Skip if debounced input doesn't match the current mode (stale data from mode switch)
     if (mode === "deserialize" && !debouncedInput.trim().startsWith("0x")) {
+      return;
+    }
+    if (mode === "serialize" && inputFormat !== "hex" && debouncedInput.trim().startsWith("0x")) {
       return;
     }
 
