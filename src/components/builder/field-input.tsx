@@ -118,14 +118,15 @@ export function FieldInput({type, value, onChange, fieldName, depth = 0}: FieldI
 
   // BitList / BitVector
   if (type instanceof BitListType || type instanceof BitVectorType) {
-    const arr = value instanceof Uint8Array ? value : (Array.isArray(value) ? value : []);
-    const boolArr = Array.isArray(arr) ? arr : [];
     return (
-      <LeafRow fieldName={fieldName} typeName={typeName} category={category}>
-        <span className="text-[11px] font-mono text-[var(--color-text-muted)]">
-          {boolArr.length} bits
-        </span>
-      </LeafRow>
+      <BitField
+        type={type}
+        value={value}
+        onChange={onChange}
+        fieldName={fieldName}
+        typeName={typeName}
+        category={category}
+      />
     );
   }
 
@@ -334,6 +335,128 @@ function ListField({
               + add item
             </button>
           )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function BitField({
+  type,
+  value,
+  onChange,
+  fieldName,
+  typeName,
+  category,
+}: {
+  type: BitListType | BitVectorType;
+  value: unknown;
+  onChange: (value: unknown) => void;
+  fieldName: string;
+  typeName: string;
+  category: string;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const isFixed = type instanceof BitVectorType;
+  const maxBits = isFixed ? type.lengthBits : type.limitBits;
+
+  // BitArray values are boolean arrays in SSZ
+  const bits: boolean[] = Array.isArray(value) ? value : [];
+
+  const toggleBit = (index: number) => {
+    const next = [...bits];
+    next[index] = !next[index];
+    onChange(next);
+  };
+
+  const addBit = () => {
+    if (bits.length >= maxBits) return;
+    onChange([...bits, false]);
+  };
+
+  const removeBit = () => {
+    if (bits.length === 0) return;
+    onChange(bits.slice(0, -1));
+  };
+
+  const setAll = (val: boolean) => {
+    onChange(bits.map(() => val));
+  };
+
+  return (
+    <div>
+      <div
+        className="flex items-center gap-1.5 py-[3px] cursor-pointer hover:bg-[var(--color-surface-overlay)]/40 rounded px-1 -mx-1"
+        onClick={() => setExpanded(!expanded)}
+      >
+        <span className={`text-[10px] transition-transform duration-150 text-[var(--color-text-muted)] select-none ${expanded ? "rotate-90" : ""}`}>
+          &#9654;
+        </span>
+        <span className="text-[12px] font-mono text-[var(--color-text-primary)]">{fieldName}</span>
+        <span className={`text-[10px] font-mono ${categoryBadgeColors[category]}`}>{typeName}</span>
+        <span className="text-[10px] text-[var(--color-text-muted)]/40">
+          {bits.length} bits, {bits.filter(Boolean).length} set
+        </span>
+      </div>
+      {expanded && (
+        <div className="ml-3 pl-3 border-l border-[var(--color-border)]/40 py-1">
+          {/* Bit grid */}
+          <div className="flex flex-wrap gap-[2px] mb-2">
+            {bits.slice(0, 256).map((bit, i) => (
+              <button
+                key={i}
+                onClick={() => toggleBit(i)}
+                title={`bit ${i}: ${bit ? "1" : "0"}`}
+                className={`w-[14px] h-[14px] rounded-[2px] text-[8px] font-mono leading-none flex items-center justify-center transition-all ${
+                  bit
+                    ? "bg-[var(--color-ssz-boolean)] text-white"
+                    : "bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-text-muted)]/30 hover:border-[var(--color-ssz-boolean)]/40"
+                }`}
+              >
+                {bit ? "1" : "0"}
+              </button>
+            ))}
+            {bits.length > 256 && (
+              <span className="text-[10px] text-[var(--color-text-muted)] self-center ml-1">
+                ...{bits.length - 256} more
+              </span>
+            )}
+          </div>
+          {/* Controls */}
+          <div className="flex items-center gap-1.5">
+            {!isFixed && bits.length < maxBits && (
+              <button
+                onClick={addBit}
+                className="px-2 py-0.5 text-[10px] font-mono rounded-md bg-[var(--color-surface)] border border-[var(--color-border)] border-dashed text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)] transition-all"
+              >
+                + bit
+              </button>
+            )}
+            {!isFixed && bits.length > 0 && (
+              <button
+                onClick={removeBit}
+                className="px-2 py-0.5 text-[10px] font-mono rounded-md bg-[var(--color-surface)] border border-[var(--color-border)] border-dashed text-[var(--color-text-muted)] hover:text-red-400/70 transition-all"
+              >
+                - bit
+              </button>
+            )}
+            {bits.length > 0 && (
+              <>
+                <button
+                  onClick={() => setAll(true)}
+                  className="px-2 py-0.5 text-[10px] font-mono rounded-md bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)] transition-all"
+                >
+                  all 1
+                </button>
+                <button
+                  onClick={() => setAll(false)}
+                  className="px-2 py-0.5 text-[10px] font-mono rounded-md bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)] transition-all"
+                >
+                  all 0
+                </button>
+              </>
+            )}
+          </div>
         </div>
       )}
     </div>
