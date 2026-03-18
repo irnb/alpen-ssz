@@ -12,6 +12,7 @@ import {
   UintNumberType,
   VectorBasicType,
   VectorCompositeType,
+  BitArray,
 } from "@chainsafe/ssz";
 import {useState} from "react";
 import {getCategory, getTypeName} from "../structure-view/utils";
@@ -360,27 +361,39 @@ function BitField({
   const isFixed = type instanceof BitVectorType;
   const maxBits = isFixed ? type.lengthBits : type.limitBits;
 
-  // BitArray values are boolean arrays in SSZ
-  const bits: boolean[] = Array.isArray(value) ? value : [];
+  // SSZ BitList/BitVector values are BitArray objects, not boolean[]
+  function toBoolArray(v: unknown): boolean[] {
+    if (v instanceof BitArray) return v.toBoolArray();
+    if (Array.isArray(v)) return v;
+    // For a fixed BitVector, return a zeroed array of the correct length
+    if (isFixed) return new Array(maxBits).fill(false);
+    return [];
+  }
+
+  const bits = toBoolArray(value);
+
+  const emitChange = (bools: boolean[]) => {
+    onChange(BitArray.fromBoolArray(bools));
+  };
 
   const toggleBit = (index: number) => {
     const next = [...bits];
     next[index] = !next[index];
-    onChange(next);
+    emitChange(next);
   };
 
   const addBit = () => {
     if (bits.length >= maxBits) return;
-    onChange([...bits, false]);
+    emitChange([...bits, false]);
   };
 
   const removeBit = () => {
     if (bits.length === 0) return;
-    onChange(bits.slice(0, -1));
+    emitChange(bits.slice(0, -1));
   };
 
   const setAll = (val: boolean) => {
-    onChange(bits.map(() => val));
+    emitChange(bits.map(() => val));
   };
 
   return (
