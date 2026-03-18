@@ -24,11 +24,11 @@ export default function App() {
   const [parsedValue, setParsedValue] = useState<unknown>(null);
 
   // Worker
-  const workerRef = useWorker();
+  const worker = useWorker();
 
   // SSZ processing
   const result = useSsz(
-    workerRef.current,
+    worker,
     serializeMode ? "serialize" : "deserialize",
     forkName,
     typeName,
@@ -41,7 +41,6 @@ export default function App() {
 
   // Generate default value when type/fork changes
   const generateDefault = useCallback(async () => {
-    const worker = workerRef.current;
     if (!worker || !sszType) return;
     try {
       const {value} = await worker.defaultValue(typeName, forkName);
@@ -52,16 +51,18 @@ export default function App() {
     } catch {
       // Silently fail — worker may not be ready yet
     }
-  }, [workerRef, typeName, forkName, sszType, serializeMode, inputFormat]);
+  }, [worker, typeName, forkName, sszType, serializeMode, inputFormat]);
 
   // Auto-generate default on initial load and type/fork change
   useEffect(() => {
     generateDefault();
   }, [generateDefault]);
 
-  // When mode changes, adjust formats
+  // When mode changes, adjust formats and clear stale input
   const handleModeChange = useCallback((serialize: boolean) => {
     setSerializeMode(serialize);
+    setInput("");
+    setParsedValue(null);
     if (serialize) {
       setInputFormat("yaml");
       setOutputFormat("hex");

@@ -7,8 +7,12 @@ type CopyButtonProps = {
 
 export function CopyButton({text, label = "Copy"}: CopyButtonProps) {
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(text);
-    toast.success("Copied to clipboard");
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.success("Copied to clipboard");
+    } catch {
+      toast.error("Failed to copy");
+    }
   };
 
   return (

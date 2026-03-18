@@ -1,22 +1,19 @@
 import * as Comlink from "comlink";
-import {useEffect, useRef} from "react";
+import {useEffect, useState} from "react";
 import type {SszWorkerApi} from "../workers/ssz-worker";
 
 export function useWorker() {
-  const workerRef = useRef<Comlink.Remote<SszWorkerApi> | null>(null);
-  const rawWorkerRef = useRef<Worker | null>(null);
+  const [worker, setWorker] = useState<Comlink.Remote<SszWorkerApi> | null>(null);
 
   useEffect(() => {
     const raw = new Worker(new URL("../workers/ssz-worker.ts", import.meta.url), {type: "module"});
-    workerRef.current = Comlink.wrap<SszWorkerApi>(raw);
-    rawWorkerRef.current = raw;
+    setWorker(Comlink.wrap<SszWorkerApi>(raw));
 
     return () => {
       raw.terminate();
-      workerRef.current = null;
-      rawWorkerRef.current = null;
+      setWorker(null);
     };
   }, []);
 
-  return workerRef;
+  return worker;
 }
