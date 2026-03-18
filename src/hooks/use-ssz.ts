@@ -34,6 +34,11 @@ export function useSsz(
       return;
     }
 
+    // In deserialize mode, input must be valid hex — skip if it's stale non-hex data
+    if (mode === "deserialize" && !debouncedInput.trim().startsWith("0x")) {
+      return;
+    }
+
     let cancelled = false;
     setResult((prev) => ({...prev, loading: true, error: null}));
 
