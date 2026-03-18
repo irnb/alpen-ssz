@@ -44,10 +44,10 @@ export function getTypeName(type: Type<unknown>): string {
   if (type instanceof UintNumberType) return `uint${type.byteLength * 8}`;
   if (type instanceof UintBigintType) return `uint${type.byteLength * 8}`;
   if (type instanceof BooleanType) return "boolean";
-  if (type instanceof ByteVectorType) return `ByteVector[${type.length}]`;
-  if (type instanceof ByteListType) return `ByteList[${type.limit}]`;
-  if (type instanceof BitListType) return `BitList[${type.limit}]`;
-  if (type instanceof BitVectorType) return `BitVector[${type.length}]`;
+  if (type instanceof ByteVectorType) return `ByteVector[${type.lengthBytes}]`;
+  if (type instanceof ByteListType) return `ByteList[${type.limitBytes}]`;
+  if (type instanceof BitListType) return `BitList[${type.limitBits}]`;
+  if (type instanceof BitVectorType) return `BitVector[${type.lengthBits}]`;
   if (type instanceof ContainerType) return "Container";
   if (type instanceof ListBasicType) return `List[${type.limit}]`;
   if (type instanceof ListCompositeType) return `List[${type.limit}]`;
