@@ -1,16 +1,12 @@
-FROM node:lts as build
+FROM node:lts AS build
 
 WORKDIR /usr/src/app
-COPY package.json yarn.lock src .yarnrc.yml ./
+COPY package.json package-lock.json ./
 
-
-RUN corepack enable
-RUN yarn install --immutable
+RUN npm ci
 
 COPY . .
-RUN npm rebuild node-sass
-RUN cd ./ && yarn build
-
+RUN npm run build
 
 FROM nginx:alpine
 COPY --from=build /usr/src/app/dist /usr/share/nginx/html
