@@ -43,7 +43,9 @@ export function InputPanel({
     <div className="flex flex-col h-full gap-2.5">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-[11px] font-medium text-[var(--color-text-muted)] uppercase tracking-widest">Input</span>
+          <span className="text-[11px] font-medium text-[var(--color-text-muted)] uppercase tracking-widest">
+            Input
+          </span>
           {/* Editor / Builder toggle — only in serialize mode */}
           {serializeMode && (
             <div className="flex gap-0.5 bg-[var(--color-surface)]/60 rounded-md p-0.5 border border-[var(--color-border)]">
@@ -70,18 +72,11 @@ export function InputPanel({
             </div>
           )}
         </div>
-        {!showBuilder && (
-          <FormatTabs options={formatNames} selected={inputFormat} onChange={onInputFormatChange} />
-        )}
+        {!showBuilder && <FormatTabs options={formatNames} selected={inputFormat} onChange={onInputFormatChange} />}
       </div>
 
       {showBuilder ? (
-        <TypeBuilder
-          sszType={sszType}
-          value={parsedValue}
-          onChange={onParsedValueChange}
-          typeName={typeName}
-        />
+        <TypeBuilder sszType={sszType} value={parsedValue} onChange={onParsedValueChange} typeName={typeName} />
       ) : (
         <textarea
           className="flex-1 min-h-[280px] bg-[var(--color-surface)] text-[var(--color-text-primary)] font-mono text-[13px] leading-relaxed rounded-lg border border-[var(--color-border)] p-4 resize-none focus:border-[var(--color-border-focus)] focus:outline-none placeholder:text-[var(--color-text-muted)]/50 transition-colors"

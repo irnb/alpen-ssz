@@ -1,11 +1,6 @@
 import {type Type, fromHexString, toHexString} from "@chainsafe/ssz";
 import {dumpYaml, parseYaml} from "./yaml";
 
-function fromBase64(b64: string): Uint8Array {
-  const binstr = atob(b64);
-  return Uint8Array.from(binstr, (ch) => ch.charCodeAt(0));
-}
-
 function toBase64(data: Uint8Array): string {
   const binstr = Array.from(data, (ch) => String.fromCharCode(ch)).join("");
   return btoa(binstr);

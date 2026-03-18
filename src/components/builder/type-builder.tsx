@@ -19,13 +19,7 @@ export function TypeBuilder({sszType, value, onChange, typeName}: TypeBuilderPro
 
   return (
     <div className="overflow-auto flex-1 min-h-[280px] bg-[var(--color-surface)] rounded-lg border border-[var(--color-border)] p-3">
-      <FieldInput
-        type={sszType}
-        value={value}
-        onChange={onChange}
-        fieldName={typeName}
-        depth={0}
-      />
+      <FieldInput type={sszType} value={value} onChange={onChange} fieldName={typeName} depth={0} />
     </div>
   );
 }

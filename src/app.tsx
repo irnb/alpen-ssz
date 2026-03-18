@@ -29,14 +29,7 @@ export default function App() {
   const worker = useWorker();
 
   // SSZ processing
-  const result = useSsz(
-    worker,
-    serializeMode ? "serialize" : "deserialize",
-    forkName,
-    typeName,
-    input,
-    inputFormat
-  );
+  const result = useSsz(worker, serializeMode ? "serialize" : "deserialize", forkName, typeName, input, inputFormat);
 
   // Get current SSZ type
   const sszType: Type<unknown> | null = forks[forkName]?.[typeName] ?? null;
@@ -57,6 +50,7 @@ export default function App() {
 
   // Auto-generate default ONLY on initial load and type/fork changes
   // NOT on mode/format changes (those carry data across intentionally)
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentionally omit serializeMode/inputFormat/sszType to avoid re-triggering on mode switches
   useEffect(() => {
     if (!worker || !sszType) return;
     (async () => {
@@ -69,7 +63,6 @@ export default function App() {
         // Silently fail
       }
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [worker, typeName, forkName]);
 
   // When mode changes, carry data across for round-trip
@@ -235,7 +228,9 @@ export default function App() {
             />
           </div>
           <div className="bg-[var(--color-surface-raised)] rounded-xl border border-[var(--color-border)] p-4 flex-1 min-h-[200px] overflow-auto">
-            <span className="text-[10px] font-medium text-[var(--color-text-muted)] uppercase tracking-widest">Structure</span>
+            <span className="text-[10px] font-medium text-[var(--color-text-muted)] uppercase tracking-widest">
+              Structure
+            </span>
             <div className="mt-2">
               <StructureView sszType={sszType} data={parsedValue} typeName={typeName} />
             </div>

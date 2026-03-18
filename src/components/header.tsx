@@ -25,8 +25,8 @@ export function Header() {
               className="text-[var(--color-eth-blue)] hover:underline"
             >
               Simple Serialize
-            </a>
-            {" "}data
+            </a>{" "}
+            data
           </p>
         </div>
         <a

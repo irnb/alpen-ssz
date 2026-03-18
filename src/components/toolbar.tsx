@@ -9,14 +9,7 @@ type ToolbarProps = {
   onModeChange: (serialize: boolean) => void;
 };
 
-export function Toolbar({
-  forkName,
-  typeName,
-  serializeMode,
-  onForkChange,
-  onTypeChange,
-  onModeChange,
-}: ToolbarProps) {
+export function Toolbar({forkName, typeName, serializeMode, onForkChange, onTypeChange, onModeChange}: ToolbarProps) {
   const types = typeNames(forks[forkName]);
 
   return (
@@ -24,7 +17,9 @@ export function Toolbar({
       <div className="flex items-center gap-6 max-w-[1800px] mx-auto flex-wrap">
         {/* Mode toggle */}
         <div className="flex items-center gap-1.5">
-          <span className="text-[10px] text-[var(--color-text-muted)] uppercase tracking-widest font-medium mr-1">Mode</span>
+          <span className="text-[10px] text-[var(--color-text-muted)] uppercase tracking-widest font-medium mr-1">
+            Mode
+          </span>
           <div className="flex gap-0.5 bg-[var(--color-surface)]/60 rounded-md p-0.5 border border-[var(--color-border)]">
             <button
               onClick={() => onModeChange(true)}
@@ -60,7 +55,9 @@ export function Toolbar({
             className="bg-[var(--color-surface-overlay)] text-[var(--color-text-primary)] text-[12px] font-mono rounded-md px-2.5 py-1 border border-[var(--color-border)] focus:border-[var(--color-border-focus)] focus:outline-none cursor-pointer"
           >
             {forkNames.map((name) => (
-              <option key={name} value={name}>{name}</option>
+              <option key={name} value={name}>
+                {name}
+              </option>
             ))}
           </select>
         </div>
@@ -74,7 +71,9 @@ export function Toolbar({
             className="bg-[var(--color-surface-overlay)] text-[var(--color-text-primary)] text-[12px] font-mono rounded-md px-2.5 py-1 border border-[var(--color-border)] focus:border-[var(--color-border-focus)] focus:outline-none cursor-pointer max-w-[280px]"
           >
             {types.map((name) => (
-              <option key={name} value={name}>{name}</option>
+              <option key={name} value={name}>
+                {name}
+              </option>
             ))}
           </select>
         </div>

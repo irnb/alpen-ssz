@@ -18,7 +18,11 @@ const libs = (async () => {
 
 type Type<T> = import("@chainsafe/ssz").Type<T>;
 
-function getType(types: Record<string, Record<string, Type<unknown>>>, typeName: string, forkName: string): Type<unknown> {
+function getType(
+  types: Record<string, Record<string, Type<unknown>>>,
+  typeName: string,
+  forkName: string
+): Type<unknown> {
   return types[forkName][typeName];
 }
 
@@ -57,7 +61,12 @@ const worker = {
 };
 
 export type SszWorkerApi = {
-  serialize(typeName: string, forkName: string, input: string, inputFormat: string): Promise<{serialized: Uint8Array; hashTreeRoot: Uint8Array}>;
+  serialize(
+    typeName: string,
+    forkName: string,
+    input: string,
+    inputFormat: string
+  ): Promise<{serialized: Uint8Array; hashTreeRoot: Uint8Array}>;
   deserialize(typeName: string, forkName: string, data: string, inputFormat: string): Promise<{deserialized: unknown}>;
   defaultValue(typeName: string, forkName: string): Promise<{value: unknown}>;
 };

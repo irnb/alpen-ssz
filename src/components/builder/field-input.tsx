@@ -1,4 +1,5 @@
 import {
+  BitArray,
   BitListType,
   BitVectorType,
   BooleanType,
@@ -12,7 +13,6 @@ import {
   UintNumberType,
   VectorBasicType,
   VectorCompositeType,
-  BitArray,
 } from "@chainsafe/ssz";
 import {useState} from "react";
 import {getCategory, getTypeName} from "../structure-view/utils";
@@ -81,7 +81,11 @@ export function FieldInput({type, value, onChange, fieldName, depth = 0}: FieldI
           onChange={(e) => {
             const v = e.target.value;
             if (type instanceof UintBigintType) {
-              try { onChange(BigInt(v)); } catch { /* invalid */ }
+              try {
+                onChange(BigInt(v));
+              } catch {
+                /* invalid */
+              }
             } else {
               const n = Number(v);
               if (!Number.isNaN(n)) onChange(n);
@@ -108,7 +112,9 @@ export function FieldInput({type, value, onChange, fieldName, depth = 0}: FieldI
               const bytes = fromHex(e.target.value);
               if (expectedLen && bytes.length !== expectedLen) return;
               onChange(bytes);
-            } catch { /* invalid hex */ }
+            } catch {
+              /* invalid hex */
+            }
           }}
           placeholder={expectedLen ? `0x...(${expectedLen} bytes)` : "0x..."}
           className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-md px-2 py-0.5 text-[11px] font-mono text-[var(--color-text-primary)] focus:border-[var(--color-border-focus)] focus:outline-none w-full transition-colors"
@@ -183,7 +189,7 @@ function LeafRow({
   fieldName: string;
   typeName: string;
   category: string;
-  children: React.ReactNode;
+  children: import("react").ReactNode;
 }) {
   return (
     <div className="flex items-center gap-2 py-[3px] min-h-[28px]">
@@ -224,7 +230,9 @@ function ContainerField({
         className="flex items-center gap-1.5 py-[3px] cursor-pointer hover:bg-[var(--color-surface-overlay)]/40 rounded px-1 -mx-1"
         onClick={() => setExpanded(!expanded)}
       >
-        <span className={`text-[10px] transition-transform duration-150 text-[var(--color-text-muted)] select-none ${expanded ? "rotate-90" : ""}`}>
+        <span
+          className={`text-[10px] transition-transform duration-150 text-[var(--color-text-muted)] select-none ${expanded ? "rotate-90" : ""}`}
+        >
           &#9654;
         </span>
         <span className="text-[12px] font-mono text-[var(--color-text-primary)]">{fieldName}</span>
@@ -293,7 +301,9 @@ function ListField({
         className="flex items-center gap-1.5 py-[3px] cursor-pointer hover:bg-[var(--color-surface-overlay)]/40 rounded px-1 -mx-1"
         onClick={() => setExpanded(!expanded)}
       >
-        <span className={`text-[10px] transition-transform duration-150 text-[var(--color-text-muted)] select-none ${expanded ? "rotate-90" : ""}`}>
+        <span
+          className={`text-[10px] transition-transform duration-150 text-[var(--color-text-muted)] select-none ${expanded ? "rotate-90" : ""}`}
+        >
           &#9654;
         </span>
         <span className="text-[12px] font-mono text-[var(--color-text-primary)]">{fieldName}</span>
@@ -315,7 +325,10 @@ function ListField({
               </div>
               {!isFixed && (
                 <button
-                  onClick={(e) => { e.stopPropagation(); removeItem(i); }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    removeItem(i);
+                  }}
                   className="mt-1 px-1 text-[10px] text-red-400/40 hover:text-red-400 opacity-0 group-hover/item:opacity-100 transition-all"
                 >
                   &times;
@@ -402,7 +415,9 @@ function BitField({
         className="flex items-center gap-1.5 py-[3px] cursor-pointer hover:bg-[var(--color-surface-overlay)]/40 rounded px-1 -mx-1"
         onClick={() => setExpanded(!expanded)}
       >
-        <span className={`text-[10px] transition-transform duration-150 text-[var(--color-text-muted)] select-none ${expanded ? "rotate-90" : ""}`}>
+        <span
+          className={`text-[10px] transition-transform duration-150 text-[var(--color-text-muted)] select-none ${expanded ? "rotate-90" : ""}`}
+        >
           &#9654;
         </span>
         <span className="text-[12px] font-mono text-[var(--color-text-primary)]">{fieldName}</span>

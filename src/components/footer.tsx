@@ -11,8 +11,8 @@ export function Footer() {
             className="text-[var(--color-text-secondary)] hover:text-[var(--color-eth-blue)] transition-colors"
           >
             Lodestar
-          </a>
-          {" "}tool by{" "}
+          </a>{" "}
+          tool by{" "}
           <a
             href="https://chainsafe.io"
             className="text-[var(--color-text-secondary)] hover:text-[var(--color-eth-blue)] transition-colors"

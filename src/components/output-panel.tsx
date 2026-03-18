@@ -82,7 +82,9 @@ export function OutputPanel({
       {serializeMode && hashTreeRootText && (
         <div>
           <div className="flex items-center justify-between mb-1">
-            <span className="text-[10px] text-[var(--color-text-muted)] uppercase tracking-widest font-medium">Hash Tree Root</span>
+            <span className="text-[10px] text-[var(--color-text-muted)] uppercase tracking-widest font-medium">
+              Hash Tree Root
+            </span>
             <CopyButton text={hashTreeRootText} />
           </div>
           <div className="bg-[var(--color-surface)] rounded-lg border border-[var(--color-border)] px-3 py-2 font-mono text-[13px] text-[var(--color-eth-blue)] break-all select-all">

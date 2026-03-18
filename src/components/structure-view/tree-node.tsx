@@ -13,11 +13,7 @@ function LeafValue({value, suffix}: {value: string; suffix: string | null}) {
   const isLong = value.length > VALUE_TRUNCATE_LEN;
 
   if (!isLong) {
-    return (
-      <span className="font-mono text-[11px] text-[var(--color-text-secondary)] break-all">
-        {value}
-      </span>
-    );
+    return <span className="font-mono text-[11px] text-[var(--color-text-secondary)] break-all">{value}</span>;
   }
 
   return (
@@ -33,9 +29,7 @@ function LeafValue({value, suffix}: {value: string; suffix: string | null}) {
       ) : (
         <>
           {value.slice(0, VALUE_TRUNCATE_LEN)}
-          <span className="text-[var(--color-text-muted)]">
-            {suffix ? `\u2026 ${suffix}` : `\u2026`}
-          </span>
+          <span className="text-[var(--color-text-muted)]">{suffix ? `\u2026 ${suffix}` : "\u2026"}</span>
         </>
       )}
     </span>
@@ -57,7 +51,9 @@ export function TreeNode({node, depth = 0}: TreeNodeProps) {
         {/* Expand/collapse arrow */}
         <span className="w-3.5 text-center text-[10px] flex-shrink-0 select-none">
           {hasChildren ? (
-            <span className={`inline-block transition-transform duration-150 text-[var(--color-text-muted)] ${expanded ? "rotate-90" : ""}`}>
+            <span
+              className={`inline-block transition-transform duration-150 text-[var(--color-text-muted)] ${expanded ? "rotate-90" : ""}`}
+            >
               &#9654;
             </span>
           ) : (
@@ -81,9 +77,7 @@ export function TreeNode({node, depth = 0}: TreeNodeProps) {
         )}
 
         {/* Value (leaf nodes) */}
-        {node.value != null && (
-          <LeafValue value={node.value} suffix={node.valueSuffix} />
-        )}
+        {node.value != null && <LeafValue value={node.value} suffix={node.valueSuffix} />}
       </div>
 
       {/* Children */}
