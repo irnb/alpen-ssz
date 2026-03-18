@@ -1,4 +1,4 @@
-import { type ForkName, forkNames, forks, typeNames } from "../lib/types";
+import {type ForkName, forkNames, forks, typeNames} from "../lib/types";
 
 const SPEC_VERSION = "1.6.0";
 
@@ -9,16 +9,14 @@ type HeaderProps = {
   onTypeChange: (type: string) => void;
 };
 
-export function Header({ forkName, typeName, onForkChange, onTypeChange }: HeaderProps) {
+export function Header({forkName, typeName, onForkChange, onTypeChange}: HeaderProps) {
   const types = typeNames(forks[forkName]);
 
   return (
     <header className="border-b border-slate-800 bg-slate-900/50 px-6 py-4">
       <div className="flex items-center justify-between gap-6 flex-wrap">
         <div className="flex items-center gap-3">
-          <h1 className="text-xl font-bold font-mono text-white tracking-tight">
-            SSZ Playground
-          </h1>
+          <h1 className="text-xl font-bold font-mono text-white tracking-tight">SSZ Playground</h1>
           <a
             href={`https://github.com/ethereum/consensus-specs/blob/v${SPEC_VERSION}/ssz/simple-serialize.md`}
             target="_blank"
@@ -38,7 +36,9 @@ export function Header({ forkName, typeName, onForkChange, onTypeChange }: Heade
               className="bg-slate-800 text-slate-200 text-sm rounded px-3 py-1.5 border border-slate-700 focus:border-blue-500 focus:outline-none"
             >
               {forkNames.map((name) => (
-                <option key={name} value={name}>{name}</option>
+                <option key={name} value={name}>
+                  {name}
+                </option>
               ))}
             </select>
           </label>
@@ -51,7 +51,9 @@ export function Header({ forkName, typeName, onForkChange, onTypeChange }: Heade
               className="bg-slate-800 text-slate-200 text-sm rounded px-3 py-1.5 border border-slate-700 focus:border-blue-500 focus:outline-none"
             >
               {types.map((name) => (
-                <option key={name} value={name}>{name}</option>
+                <option key={name} value={name}>
+                  {name}
+                </option>
               ))}
             </select>
           </label>

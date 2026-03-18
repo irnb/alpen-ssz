@@ -1,14 +1,14 @@
-import type { Type } from "@chainsafe/ssz";
-import { useCallback, useEffect, useState } from "react";
-import { Header } from "./components/header";
-import { Footer } from "./components/footer";
-import { InputPanel } from "./components/input-panel";
-import { OutputPanel } from "./components/output-panel";
-import { StructureView } from "./components/structure-view/structure-view";
-import { inputFormats } from "./lib/formats";
-import { type ForkName, forks, typeNames } from "./lib/types";
-import { useSsz } from "./hooks/use-ssz";
-import { useWorker } from "./hooks/use-worker";
+import type {Type} from "@chainsafe/ssz";
+import {useCallback, useEffect, useState} from "react";
+import {Footer} from "./components/footer";
+import {Header} from "./components/header";
+import {InputPanel} from "./components/input-panel";
+import {OutputPanel} from "./components/output-panel";
+import {StructureView} from "./components/structure-view/structure-view";
+import {useSsz} from "./hooks/use-ssz";
+import {useWorker} from "./hooks/use-worker";
+import {inputFormats} from "./lib/formats";
+import {type ForkName, forks, typeNames} from "./lib/types";
 
 const DEFAULT_FORK = "fulu";
 const DEFAULT_TYPE = "BeaconBlock";
@@ -33,7 +33,7 @@ export default function App() {
     forkName,
     typeName,
     input,
-    inputFormat,
+    inputFormat
   );
 
   // Get current SSZ type
@@ -44,7 +44,7 @@ export default function App() {
     const worker = workerRef.current;
     if (!worker || !sszType) return;
     try {
-      const { value } = await worker.defaultValue(typeName, forkName);
+      const {value} = await worker.defaultValue(typeName, forkName);
       const format = serializeMode ? inputFormat : "hex";
       const dumped = inputFormats[format].dump(value, sszType);
       setInput(dumped);
@@ -72,26 +72,32 @@ export default function App() {
   }, []);
 
   // Handle fork change — reset type if not available
-  const handleForkChange = useCallback((newFork: ForkName) => {
-    setForkName(newFork);
-    const types = typeNames(forks[newFork]);
-    if (!types.includes(typeName)) {
-      setTypeName(DEFAULT_TYPE);
-    }
-  }, [typeName]);
+  const handleForkChange = useCallback(
+    (newFork: ForkName) => {
+      setForkName(newFork);
+      const types = typeNames(forks[newFork]);
+      if (!types.includes(typeName)) {
+        setTypeName(DEFAULT_TYPE);
+      }
+    },
+    [typeName]
+  );
 
   // Handle input format change — re-dump current value in new format
-  const handleInputFormatChange = useCallback((format: string) => {
-    if (parsedValue != null && sszType) {
-      try {
-        const dumped = inputFormats[format].dump(parsedValue, sszType);
-        setInput(dumped);
-      } catch {
-        // Keep current input if conversion fails
+  const handleInputFormatChange = useCallback(
+    (format: string) => {
+      if (parsedValue != null && sszType) {
+        try {
+          const dumped = inputFormats[format].dump(parsedValue, sszType);
+          setInput(dumped);
+        } catch {
+          // Keep current input if conversion fails
+        }
       }
-    }
-    setInputFormat(format);
-  }, [parsedValue, sszType]);
+      setInputFormat(format);
+    },
+    [parsedValue, sszType]
+  );
 
   // Track parsed value for format conversion and structure view
   useEffect(() => {
@@ -109,12 +115,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-950">
-      <Header
-        forkName={forkName}
-        typeName={typeName}
-        onForkChange={handleForkChange}
-        onTypeChange={setTypeName}
-      />
+      <Header forkName={forkName} typeName={typeName} onForkChange={handleForkChange} onTypeChange={setTypeName} />
 
       <main className="flex-1 flex flex-col lg:flex-row gap-4 p-4">
         {/* Left: Input */}
@@ -151,11 +152,7 @@ export default function App() {
           </div>
           <div className="bg-slate-900/50 rounded-xl border border-slate-800 p-4 flex-1 min-h-[250px] overflow-auto">
             <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-3">Structure</h2>
-            <StructureView
-              sszType={sszType}
-              data={parsedValue}
-              typeName={typeName}
-            />
+            <StructureView sszType={sszType} data={parsedValue} typeName={typeName} />
           </div>
         </div>
       </main>

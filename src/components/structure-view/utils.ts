@@ -36,7 +36,8 @@ export function getCategory(type: Type<unknown>): SszCategory {
     type instanceof ListCompositeType ||
     type instanceof VectorBasicType ||
     type instanceof VectorCompositeType
-  ) return "list";
+  )
+    return "list";
   return "unknown";
 }
 
@@ -76,17 +77,12 @@ function formatValue(value: unknown): string {
   return String(value);
 }
 
-export function buildTree(
-  type: Type<unknown>,
-  data: unknown,
-  key: string,
-  gindex: string,
-): TreeNodeData {
+export function buildTree(type: Type<unknown>, data: unknown, key: string, gindex: string): TreeNodeData {
   const category = getCategory(type);
   const typeName = getTypeName(type);
 
   if (isLeafType(type)) {
-    return { key, typeName, category, value: formatValue(data), children: null, gindex };
+    return {key, typeName, category, value: formatValue(data), children: null, gindex};
   }
 
   if (type instanceof ContainerType) {
@@ -94,11 +90,11 @@ export function buildTree(
     const fieldNames = Object.keys(fields);
     const depth = Math.ceil(Math.log2(Math.max(fieldNames.length, 1)));
     const children = fieldNames.map((fieldName, i) => {
-      const fieldGindex = (BigInt(gindex) * (2n ** BigInt(depth)) + BigInt(i)).toString();
+      const fieldGindex = (BigInt(gindex) * 2n ** BigInt(depth) + BigInt(i)).toString();
       const fieldData = data && typeof data === "object" ? (data as Record<string, unknown>)[fieldName] : undefined;
       return buildTree(fields[fieldName], fieldData, fieldName, fieldGindex);
     });
-    return { key, typeName, category, value: null, children, gindex };
+    return {key, typeName, category, value: null, children, gindex};
   }
 
   if (
@@ -124,10 +120,10 @@ export function buildTree(
         gindex: "",
       });
     }
-    return { key, typeName: `${typeName} (${items.length})`, category, value: null, children, gindex };
+    return {key, typeName: `${typeName} (${items.length})`, category, value: null, children, gindex};
   }
 
-  return { key, typeName, category, value: formatValue(data), children: null, gindex };
+  return {key, typeName, category, value: formatValue(data), children: null, gindex};
 }
 
 export const categoryColors: Record<SszCategory, string> = {

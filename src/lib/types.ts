@@ -8,7 +8,7 @@ import {
   VectorBasicType,
   VectorCompositeType,
 } from "@chainsafe/ssz";
-import { ssz } from "@lodestar/types";
+import {ssz} from "@lodestar/types";
 
 const {
   phase0: _phase0,
@@ -38,16 +38,16 @@ capella = patchSszTypes(capella);
 deneb = patchSszTypes(deneb);
 electra = patchSszTypes(electra);
 fulu = patchSszTypes(fulu);
-let primitive = patchSszTypes(primitive0);
+const primitive = patchSszTypes(primitive0);
 
 export const forks = {
-  phase0: { ...phase0, ...primitive },
-  altair: { ...phase0, ...altair, ...primitive },
-  bellatrix: { ...phase0, ...altair, ...bellatrix, ...primitive },
-  capella: { ...phase0, ...altair, ...bellatrix, ...capella, ...primitive },
-  deneb: { ...phase0, ...altair, ...bellatrix, ...capella, ...deneb, ...primitive },
-  electra: { ...phase0, ...altair, ...bellatrix, ...capella, ...deneb, ...electra, ...primitive },
-  fulu: { ...phase0, ...altair, ...bellatrix, ...capella, ...deneb, ...electra, ...fulu, ...primitive },
+  phase0: {...phase0, ...primitive},
+  altair: {...phase0, ...altair, ...primitive},
+  bellatrix: {...phase0, ...altair, ...bellatrix, ...primitive},
+  capella: {...phase0, ...altair, ...bellatrix, ...capella, ...primitive},
+  deneb: {...phase0, ...altair, ...bellatrix, ...capella, ...deneb, ...primitive},
+  electra: {...phase0, ...altair, ...bellatrix, ...capella, ...deneb, ...electra, ...primitive},
+  fulu: {...phase0, ...altair, ...bellatrix, ...capella, ...deneb, ...electra, ...fulu, ...primitive},
 } as unknown as Record<string, Record<string, Type<unknown>>>;
 
 export type ForkName = keyof typeof forks;
@@ -63,7 +63,7 @@ export function typeNames(types: Record<string, Type<unknown>>): string[] {
  * Recursively replaces all 8-byte UintNumberType with UintBigintType.
  */
 function patchSszTypes<T extends Record<keyof T, Type<unknown>>>(sszTypes: T): T {
-  const types = { ...sszTypes };
+  const types = {...sszTypes};
   for (const key of Object.keys(types) as (keyof typeof types)[]) {
     types[key] = replaceUintTypeWithUintBigintType(types[key]);
   }
@@ -75,7 +75,7 @@ function replaceUintTypeWithUintBigintType<T extends Type<unknown>>(type: T): T 
     return new UintBigintType(type.byteLength) as unknown as T;
   }
   if (type instanceof ContainerType) {
-    const fields = { ...type.fields };
+    const fields = {...type.fields};
     for (const key of Object.keys(fields) as (keyof typeof fields)[]) {
       fields[key] = replaceUintTypeWithUintBigintType(fields[key]);
     }

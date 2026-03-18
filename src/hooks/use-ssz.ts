@@ -1,7 +1,7 @@
 import type * as Comlink from "comlink";
-import { useEffect, useState } from "react";
-import type { SszWorkerApi } from "../workers/ssz-worker";
-import { useDebounce } from "./use-debounce";
+import {useEffect, useState} from "react";
+import type {SszWorkerApi} from "../workers/ssz-worker";
+import {useDebounce} from "./use-debounce";
 
 type SszResult = {
   serialized: Uint8Array | null;
@@ -17,7 +17,7 @@ export function useSsz(
   forkName: string,
   typeName: string,
   input: string,
-  inputFormat: string,
+  inputFormat: string
 ): SszResult {
   const [result, setResult] = useState<SszResult>({
     serialized: null,
@@ -35,17 +35,12 @@ export function useSsz(
     }
 
     let cancelled = false;
-    setResult((prev) => ({ ...prev, loading: true, error: null }));
+    setResult((prev) => ({...prev, loading: true, error: null}));
 
     const run = async () => {
       try {
         if (mode === "serialize") {
-          const { serialized, hashTreeRoot } = await worker.serialize(
-            typeName,
-            forkName,
-            debouncedInput,
-            inputFormat,
-          );
+          const {serialized, hashTreeRoot} = await worker.serialize(typeName, forkName, debouncedInput, inputFormat);
           if (!cancelled) {
             setResult({
               serialized,
@@ -56,11 +51,7 @@ export function useSsz(
             });
           }
         } else {
-          const { deserialized } = await worker.deserialize(
-            typeName,
-            forkName,
-            debouncedInput,
-          );
+          const {deserialized} = await worker.deserialize(typeName, forkName, debouncedInput);
           if (!cancelled) {
             setResult({
               serialized: null,
@@ -85,7 +76,9 @@ export function useSsz(
     };
 
     run();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [worker, mode, forkName, typeName, debouncedInput, inputFormat]);
 
   return result;

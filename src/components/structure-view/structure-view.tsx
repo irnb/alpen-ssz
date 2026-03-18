@@ -1,7 +1,7 @@
-import type { Type } from "@chainsafe/ssz";
-import { useMemo } from "react";
-import { TreeNode } from "./tree-node";
-import { buildTree } from "./utils";
+import type {Type} from "@chainsafe/ssz";
+import {useMemo} from "react";
+import {TreeNode} from "./tree-node";
+import {buildTree} from "./utils";
 
 type StructureViewProps = {
   sszType: Type<unknown> | null;
@@ -9,7 +9,7 @@ type StructureViewProps = {
   typeName: string;
 };
 
-export function StructureView({ sszType, data, typeName }: StructureViewProps) {
+export function StructureView({sszType, data, typeName}: StructureViewProps) {
   const tree = useMemo(() => {
     if (!sszType || data == null) return null;
     return buildTree(sszType, data, typeName, "1");

@@ -1,12 +1,13 @@
-import { toHexString } from "@chainsafe/ssz";
-import { useRef } from "react";
+import {toHexString} from "@chainsafe/ssz";
+import type React from "react";
+import {useRef} from "react";
 
 type FileUploadProps = {
   serializeMode: boolean;
   onLoad: (content: string) => void;
 };
 
-export function FileUpload({ serializeMode, onLoad }: FileUploadProps) {
+export function FileUpload({serializeMode, onLoad}: FileUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

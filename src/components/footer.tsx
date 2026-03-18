@@ -1,4 +1,4 @@
-import { dependencies } from "../../package.json";
+import {dependencies} from "../../package.json";
 
 export function Footer() {
   return (

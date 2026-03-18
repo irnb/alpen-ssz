@@ -1,12 +1,12 @@
-import type { Type } from "@chainsafe/ssz";
+import type {Type} from "@chainsafe/ssz";
 import {
   deserializeOutputFormatNames,
   deserializeOutputFormats,
   serializeOutputFormatNames,
   serializeOutputFormats,
 } from "../lib/formats";
-import { FormatTabs } from "./format-tabs";
-import { CopyButton } from "./ui/copy-button";
+import {FormatTabs} from "./format-tabs";
+import {CopyButton} from "./ui/copy-button";
 
 type OutputPanelProps = {
   serializeMode: boolean;
@@ -85,11 +85,7 @@ export function OutputPanel({
             Deserialize
           </button>
         </div>
-        <FormatTabs
-          options={formatNames}
-          selected={outputFormat}
-          onChange={onOutputFormatChange}
-        />
+        <FormatTabs options={formatNames} selected={outputFormat} onChange={onOutputFormatChange} />
       </div>
 
       {/* Error display */}

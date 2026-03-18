@@ -1,6 +1,6 @@
-import { serializeInputFormatNames, deserializeInputFormatNames } from "../lib/formats";
-import { FormatTabs } from "./format-tabs";
-import { FileUpload } from "./ui/file-upload";
+import {deserializeInputFormatNames, serializeInputFormatNames} from "../lib/formats";
+import {FormatTabs} from "./format-tabs";
+import {FileUpload} from "./ui/file-upload";
 
 type InputPanelProps = {
   serializeMode: boolean;
@@ -27,11 +27,7 @@ export function InputPanel({
     <div className="flex flex-col h-full">
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wider">Input</h2>
-        <FormatTabs
-          options={formatNames}
-          selected={inputFormat}
-          onChange={onInputFormatChange}
-        />
+        <FormatTabs options={formatNames} selected={inputFormat} onChange={onInputFormatChange} />
       </div>
 
       <textarea

@@ -1,11 +1,11 @@
-import { toast } from "sonner";
+import {toast} from "sonner";
 
 type CopyButtonProps = {
   text: string;
   label?: string;
 };
 
-export function CopyButton({ text, label = "Copy" }: CopyButtonProps) {
+export function CopyButton({text, label = "Copy"}: CopyButtonProps) {
   const handleCopy = async () => {
     await navigator.clipboard.writeText(text);
     toast.success("Copied to clipboard");
