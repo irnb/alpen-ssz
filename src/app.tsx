@@ -1,4 +1,4 @@
-import {type Type, toHexString} from "@chainsafe/ssz";
+import type {Type} from "@chainsafe/ssz";
 import {useCallback, useEffect, useState} from "react";
 import {Footer} from "./components/footer";
 import {Header} from "./components/header";
@@ -7,7 +7,7 @@ import {OutputPanel} from "./components/output-panel";
 import {StructureView} from "./components/structure-view/structure-view";
 import {useSsz} from "./hooks/use-ssz";
 import {useWorker} from "./hooks/use-worker";
-import {inputFormats} from "./lib/formats";
+import {inputFormats, serializeOutputFormats} from "./lib/formats";
 import {type ForkName, forks, typeNames} from "./lib/types";
 
 const DEFAULT_FORK = "fulu";
@@ -64,7 +64,7 @@ export default function App() {
     (serialize: boolean) => {
       if (!serialize && result.serialized) {
         // Serialize → Deserialize: carry serialized bytes as hex into input
-        const hex = toHexString(result.serialized);
+        const hex = serializeOutputFormats.hex.dump(result.serialized);
         setSerializeMode(false);
         setInputFormat("hex");
         setOutputFormat("yaml");
