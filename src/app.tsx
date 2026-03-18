@@ -1,4 +1,4 @@
-import type {Type} from "@chainsafe/ssz";
+import {type Type, toHexString} from "@chainsafe/ssz";
 import {useCallback, useEffect, useState} from "react";
 import {Footer} from "./components/footer";
 import {Header} from "./components/header";
@@ -63,8 +63,8 @@ export default function App() {
   const handleModeChange = useCallback(
     (serialize: boolean) => {
       if (!serialize && result.serialized) {
-        // Serialize → Deserialize: carry serialized hex into input
-        const hex = inputFormats.hex.dump(result.serialized, sszType!);
+        // Serialize → Deserialize: carry serialized bytes as hex into input
+        const hex = toHexString(result.serialized);
         setSerializeMode(false);
         setInputFormat("hex");
         setOutputFormat("yaml");
