@@ -7,7 +7,8 @@ export function useWorker() {
 
   useEffect(() => {
     const raw = new Worker(new URL("../workers/ssz-worker.ts", import.meta.url), {type: "module"});
-    setWorker(Comlink.wrap<SszWorkerApi>(raw));
+    // Arrow wrapper prevents React from calling the Proxy as a state updater
+    setWorker(() => Comlink.wrap<SszWorkerApi>(raw));
 
     return () => {
       raw.terminate();
