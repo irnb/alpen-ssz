@@ -1,13 +1,24 @@
-import {createRoot} from "react-dom/client";
-import {Toaster} from "sonner";
-import App from "./app";
-import "./index.css";
+import {Buffer} from "buffer";
+(globalThis as Record<string, unknown>).Buffer = Buffer;
 
-const root = document.getElementById("root");
-if (!root) throw new Error("Root element not found");
-createRoot(root).render(
-  <>
-    <App />
-    <Toaster theme="dark" position="bottom-right" />
-  </>
-);
+// Dynamic imports so SSZ libraries load AFTER Buffer is polyfilled
+// (static imports are hoisted and execute before module body)
+async function main() {
+  const [{createRoot}, {Toaster}, {default: App}] = await Promise.all([
+    import("react-dom/client"),
+    import("sonner"),
+    import("./app"),
+  ]);
+  await import("./index.css");
+
+  const root = document.getElementById("root");
+  if (!root) throw new Error("Root element not found");
+  createRoot(root).render(
+    <>
+      <App />
+      <Toaster theme="dark" position="bottom-right" />
+    </>
+  );
+}
+
+main();

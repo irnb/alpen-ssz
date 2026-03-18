@@ -1,35 +1,60 @@
-import {type Type, fromHexString} from "@chainsafe/ssz";
-import * as Comlink from "comlink";
-import {inputFormats} from "../lib/formats";
-import {forks} from "../lib/types";
+// Buffer polyfill MUST be set before SSZ libs load (they use Buffer.allocUnsafe).
+// Comlink is safe to import statically — it doesn't touch Buffer.
+import {Buffer} from "buffer";
+(globalThis as Record<string, unknown>).Buffer = Buffer;
 
-function getType(typeName: string, forkName: string): Type<unknown> {
-  return forks[forkName][typeName];
+import * as Comlink from "comlink";
+
+// Lazy-load SSZ libraries via dynamic import so they resolve
+// AFTER the Buffer polyfill assignment above has executed.
+const libs = (async () => {
+  const [{fromHexString}, {inputFormats}, {forks}] = await Promise.all([
+    import("@chainsafe/ssz"),
+    import("../lib/formats"),
+    import("../lib/types"),
+  ]);
+  return {fromHexString, inputFormats, forks};
+})();
+
+type Type<T> = import("@chainsafe/ssz").Type<T>;
+
+function getType(types: Record<string, Record<string, Type<unknown>>>, typeName: string, forkName: string): Type<unknown> {
+  return types[forkName][typeName];
 }
 
+// Methods are async — they await the libs promise (resolves once, then cached).
+// Comlink transparently handles async return values.
 const worker = {
-  serialize(typeName: string, forkName: string, input: string, inputFormat: string) {
-    const type = getType(typeName, forkName);
+  async serialize(typeName: string, forkName: string, input: string, inputFormat: string) {
+    const {inputFormats, forks} = await libs;
+    const type = getType(forks, typeName, forkName);
     const parsed = inputFormats[inputFormat].parse(input, type);
     const serialized = type.serialize(parsed);
     const hashTreeRoot = type.hashTreeRoot(parsed);
     return Comlink.transfer({serialized, hashTreeRoot}, [serialized.buffer, hashTreeRoot.buffer]);
   },
 
-  deserialize(typeName: string, forkName: string, hexData: string): {deserialized: unknown} {
-    const type = getType(typeName, forkName);
+  async deserialize(typeName: string, forkName: string, hexData: string) {
+    const {fromHexString, forks} = await libs;
+    const type = getType(forks, typeName, forkName);
     const bytes = fromHexString(hexData);
     const deserialized = type.deserialize(bytes);
     return {deserialized};
   },
 
-  defaultValue(typeName: string, forkName: string): {value: unknown} {
-    const type = getType(typeName, forkName);
+  async defaultValue(typeName: string, forkName: string) {
+    const {forks} = await libs;
+    const type = getType(forks, typeName, forkName);
     const value = type.defaultValue();
     return {value};
   },
 };
 
-export type SszWorkerApi = typeof worker;
+export type SszWorkerApi = {
+  serialize(typeName: string, forkName: string, input: string, inputFormat: string): Promise<{serialized: Uint8Array; hashTreeRoot: Uint8Array}>;
+  deserialize(typeName: string, forkName: string, hexData: string): Promise<{deserialized: unknown}>;
+  defaultValue(typeName: string, forkName: string): Promise<{value: unknown}>;
+};
 
+// Expose synchronously — Comlink is statically imported so this runs immediately.
 Comlink.expose(worker);
