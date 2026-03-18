@@ -1,6 +1,16 @@
 import {type Type, fromHexString, toHexString} from "@chainsafe/ssz";
 import {dumpYaml, parseYaml} from "./yaml";
 
+function fromBase64(b64: string): Uint8Array {
+  const binstr = atob(b64);
+  return Uint8Array.from(binstr, (ch) => ch.charCodeAt(0));
+}
+
+function toBase64(data: Uint8Array): string {
+  const binstr = Array.from(data, (ch) => String.fromCharCode(ch)).join("");
+  return btoa(binstr);
+}
+
 // --- Input formats (for parsing user input into SSZ values) ---
 
 type InputFormat = {
@@ -25,11 +35,6 @@ export const inputFormats: Record<string, InputFormat> = {
 
 // --- Output formats (for displaying results) ---
 
-function toBase64(data: Uint8Array): string {
-  const binstr = Array.from(data, (ch) => String.fromCharCode(ch)).join("");
-  return btoa(binstr);
-}
-
 type SerializeOutputFormat = {
   dump: (value: Uint8Array) => string;
 };
@@ -53,6 +58,6 @@ export const deserializeOutputFormats: Record<string, DeserializeOutputFormat> =
 };
 
 export const serializeInputFormatNames = ["yaml", "json", "hex"] as const;
-export const deserializeInputFormatNames = ["hex"] as const;
+export const deserializeInputFormatNames = ["hex", "base64"] as const;
 export const serializeOutputFormatNames = ["hex", "base64"] as const;
 export const deserializeOutputFormatNames = ["yaml", "json"] as const;

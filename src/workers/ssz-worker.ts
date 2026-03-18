@@ -34,10 +34,16 @@ const worker = {
     return Comlink.transfer({serialized, hashTreeRoot}, [serialized.buffer, hashTreeRoot.buffer]);
   },
 
-  async deserialize(typeName: string, forkName: string, hexData: string) {
+  async deserialize(typeName: string, forkName: string, data: string, inputFormat: string) {
     const {fromHexString, forks} = await libs;
     const type = getType(forks, typeName, forkName);
-    const bytes = fromHexString(hexData);
+    let bytes: Uint8Array;
+    if (inputFormat === "base64") {
+      const binstr = atob(data);
+      bytes = Uint8Array.from(binstr, (ch) => ch.charCodeAt(0));
+    } else {
+      bytes = fromHexString(data);
+    }
     const deserialized = type.deserialize(bytes);
     return {deserialized};
   },
@@ -52,7 +58,7 @@ const worker = {
 
 export type SszWorkerApi = {
   serialize(typeName: string, forkName: string, input: string, inputFormat: string): Promise<{serialized: Uint8Array; hashTreeRoot: Uint8Array}>;
-  deserialize(typeName: string, forkName: string, hexData: string): Promise<{deserialized: unknown}>;
+  deserialize(typeName: string, forkName: string, data: string, inputFormat: string): Promise<{deserialized: unknown}>;
   defaultValue(typeName: string, forkName: string): Promise<{value: unknown}>;
 };
 

@@ -35,10 +35,11 @@ export function useSsz(
     }
 
     // Skip if debounced input doesn't match the current mode (stale data from mode switch)
-    if (mode === "deserialize" && !debouncedInput.trim().startsWith("0x")) {
+    const trimmed = debouncedInput.trim();
+    if (mode === "deserialize" && inputFormat === "hex" && !trimmed.startsWith("0x")) {
       return;
     }
-    if (mode === "serialize" && inputFormat !== "hex" && debouncedInput.trim().startsWith("0x")) {
+    if (mode === "serialize" && inputFormat !== "hex" && trimmed.startsWith("0x")) {
       return;
     }
 
@@ -59,7 +60,7 @@ export function useSsz(
             });
           }
         } else {
-          const {deserialized} = await worker.deserialize(typeName, forkName, debouncedInput);
+          const {deserialized} = await worker.deserialize(typeName, forkName, debouncedInput, inputFormat);
           if (!cancelled) {
             setResult({
               serialized: null,
