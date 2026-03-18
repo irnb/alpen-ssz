@@ -1,4 +1,5 @@
 import type {Type} from "@chainsafe/ssz";
+import {toast} from "sonner";
 import {
   deserializeOutputFormatNames,
   deserializeOutputFormats,
@@ -30,6 +31,7 @@ function downloadBlob(data: Uint8Array | string, filename: string) {
   a.download = filename;
   a.click();
   URL.revokeObjectURL(url);
+  toast.success(`Downloaded ${filename}`);
 }
 
 export function OutputPanel({
@@ -64,22 +66,26 @@ export function OutputPanel({
   }
 
   return (
-    <div className="flex flex-col">
-      {/* Mode tabs */}
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex gap-1 bg-slate-800/50 rounded-lg p-1">
+    <div className="flex flex-col gap-2.5">
+      {/* Mode tabs + format tabs */}
+      <div className="flex items-center justify-between">
+        <div className="flex gap-0.5 bg-[var(--color-surface)]/60 rounded-md p-0.5 border border-[var(--color-border)]">
           <button
             onClick={() => onModeChange(true)}
-            className={`px-4 py-1.5 text-xs font-mono rounded transition-colors ${
-              serializeMode ? "bg-blue-600 text-white" : "text-slate-400 hover:text-slate-200"
+            className={`px-3 py-1 text-[11px] font-mono rounded-[3px] transition-all duration-150 ${
+              serializeMode
+                ? "bg-[var(--color-eth-blue)]/15 text-[var(--color-eth-blue)] shadow-[inset_0_0_0_1px_var(--color-eth-blue-dim)]"
+                : "text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]"
             }`}
           >
             Serialize
           </button>
           <button
             onClick={() => onModeChange(false)}
-            className={`px-4 py-1.5 text-xs font-mono rounded transition-colors ${
-              !serializeMode ? "bg-blue-600 text-white" : "text-slate-400 hover:text-slate-200"
+            className={`px-3 py-1 text-[11px] font-mono rounded-[3px] transition-all duration-150 ${
+              !serializeMode
+                ? "bg-[var(--color-eth-blue)]/15 text-[var(--color-eth-blue)] shadow-[inset_0_0_0_1px_var(--color-eth-blue-dim)]"
+                : "text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]"
             }`}
           >
             Deserialize
@@ -90,51 +96,53 @@ export function OutputPanel({
 
       {/* Error display */}
       {error && (
-        <div className="mb-3 p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm font-mono">
+        <div className="p-3 rounded-lg bg-red-500/5 border border-red-500/20 text-red-400/90 text-[12px] font-mono leading-relaxed">
           {error}
         </div>
       )}
 
       {/* Hash tree root (serialize mode only) */}
       {serializeMode && hashTreeRootText && (
-        <div className="mb-3">
+        <div>
           <div className="flex items-center justify-between mb-1">
-            <span className="text-xs text-slate-500 uppercase tracking-wider">Hash Tree Root</span>
+            <span className="text-[10px] text-[var(--color-text-muted)] uppercase tracking-widest font-medium">Hash Tree Root</span>
             <CopyButton text={hashTreeRootText} />
           </div>
-          <div className="bg-slate-900 rounded-lg border border-slate-700 p-3 font-mono text-sm text-slate-300 break-all">
+          <div className="bg-[var(--color-surface)] rounded-lg border border-[var(--color-border)] px-3 py-2 font-mono text-[13px] text-[var(--color-eth-blue)] break-all select-all">
             {hashTreeRootText}
           </div>
         </div>
       )}
 
       {/* Main output */}
-      <div className="flex items-center justify-between mb-1">
-        <span className="text-xs text-slate-500 uppercase tracking-wider">
-          {serializeMode ? "Serialized" : "Deserialized"}
-        </span>
-        <div className="flex gap-2">
-          <CopyButton text={outputText} />
-          <button
-            onClick={() => {
-              if (serializeMode && serialized) {
-                downloadBlob(serialized, `${typeName}.ssz`);
-              } else if (outputText) {
-                downloadBlob(outputText, `${typeName}.${outputFormat}`);
-              }
-            }}
-            disabled={!outputText}
-            className="px-3 py-1.5 text-xs font-mono rounded bg-slate-700 text-slate-300 hover:bg-slate-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-          >
-            Download
-          </button>
+      <div>
+        <div className="flex items-center justify-between mb-1">
+          <span className="text-[10px] text-[var(--color-text-muted)] uppercase tracking-widest font-medium">
+            {serializeMode ? "Serialized" : "Deserialized"}
+          </span>
+          <div className="flex gap-1">
+            <CopyButton text={outputText} />
+            <button
+              onClick={() => {
+                if (serializeMode && serialized) {
+                  downloadBlob(serialized, `${typeName}.ssz`);
+                } else if (outputText) {
+                  downloadBlob(outputText, `${typeName}.${outputFormat}`);
+                }
+              }}
+              disabled={!outputText}
+              className="px-2 py-1 text-[11px] font-mono rounded-md bg-[var(--color-surface-overlay)] text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)] border border-[var(--color-border)] hover:border-[var(--color-text-muted)]/30 disabled:opacity-20 disabled:cursor-not-allowed transition-all"
+            >
+              Download
+            </button>
+          </div>
         </div>
+        <textarea
+          readOnly
+          value={loading ? "Processing..." : outputText}
+          className="w-full min-h-[180px] bg-[var(--color-surface)] text-[var(--color-text-secondary)] font-mono text-[13px] leading-relaxed rounded-lg border border-[var(--color-border)] p-4 resize-none focus:outline-none"
+        />
       </div>
-      <textarea
-        readOnly
-        value={loading ? "Processing..." : outputText}
-        className="min-h-[200px] bg-slate-900 text-slate-300 font-mono text-sm rounded-lg border border-slate-700 p-4 resize-none focus:outline-none"
-      />
     </div>
   );
 }

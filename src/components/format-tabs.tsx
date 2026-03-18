@@ -6,13 +6,15 @@ type FormatTabsProps = {
 
 export function FormatTabs({options, selected, onChange}: FormatTabsProps) {
   return (
-    <div className="flex gap-1 bg-slate-800/50 rounded-lg p-1">
+    <div className="flex gap-0.5 bg-[var(--color-surface)]/60 rounded-md p-0.5 border border-[var(--color-border)]">
       {options.map((opt) => (
         <button
           key={opt}
           onClick={() => onChange(opt)}
-          className={`px-3 py-1 text-xs font-mono rounded transition-colors ${
-            selected === opt ? "bg-slate-700 text-white" : "text-slate-400 hover:text-slate-200"
+          className={`px-2.5 py-1 text-[11px] font-mono rounded-[3px] transition-all duration-150 ${
+            selected === opt
+              ? "bg-[var(--color-eth-blue)]/15 text-[var(--color-eth-blue)] shadow-[inset_0_0_0_1px_var(--color-eth-blue-dim)]"
+              : "text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]"
           }`}
         >
           {opt}

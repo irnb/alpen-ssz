@@ -33,7 +33,7 @@ export function FileUpload({serializeMode, onLoad}: FileUploadProps) {
   };
 
   return (
-    <label className="px-3 py-1.5 text-xs font-mono rounded bg-slate-700 text-slate-300 hover:bg-slate-600 cursor-pointer transition-colors">
+    <label className="px-2.5 py-1.5 text-[11px] font-mono rounded-md bg-[var(--color-surface-overlay)] text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)] border border-[var(--color-border)] hover:border-[var(--color-text-muted)]/30 cursor-pointer transition-all">
       Upload
       <input
         ref={inputRef}

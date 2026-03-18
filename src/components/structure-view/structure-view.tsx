@@ -17,14 +17,14 @@ export function StructureView({sszType, data, typeName}: StructureViewProps) {
 
   if (!tree) {
     return (
-      <div className="flex items-center justify-center h-full text-sm text-slate-600 font-mono">
-        Structure view will appear here
+      <div className="flex items-center justify-center h-full text-[12px] text-[var(--color-text-muted)]/50 font-mono py-8">
+        Structure appears when data is loaded
       </div>
     );
   }
 
   return (
-    <div className="overflow-auto font-mono text-sm">
+    <div className="overflow-auto">
       <TreeNode node={tree} />
     </div>
   );

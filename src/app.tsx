@@ -115,13 +115,13 @@ export default function App() {
   }, [serializeMode, input, inputFormat, sszType, result.deserialized]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-950">
+    <div className="min-h-screen flex flex-col bg-[var(--color-surface)]">
       <Header forkName={forkName} typeName={typeName} onForkChange={handleForkChange} onTypeChange={setTypeName} />
 
-      <main className="flex-1 flex flex-col lg:flex-row gap-4 p-4">
+      <main className="flex-1 flex flex-col lg:flex-row gap-3 p-3 max-w-[1800px] mx-auto w-full">
         {/* Left: Input */}
         <div className="lg:w-1/2 flex flex-col">
-          <div className="bg-slate-900/50 rounded-xl border border-slate-800 p-4 flex-1">
+          <div className="bg-[var(--color-surface-raised)] rounded-xl border border-[var(--color-border)] p-4 flex-1">
             <InputPanel
               serializeMode={serializeMode}
               input={input}
@@ -135,8 +135,8 @@ export default function App() {
         </div>
 
         {/* Right: Output + Structure */}
-        <div className="lg:w-1/2 flex flex-col gap-4">
-          <div className="bg-slate-900/50 rounded-xl border border-slate-800 p-4">
+        <div className="lg:w-1/2 flex flex-col gap-3">
+          <div className="bg-[var(--color-surface-raised)] rounded-xl border border-[var(--color-border)] p-4">
             <OutputPanel
               serializeMode={serializeMode}
               onModeChange={handleModeChange}
@@ -151,9 +151,11 @@ export default function App() {
               onOutputFormatChange={setOutputFormat}
             />
           </div>
-          <div className="bg-slate-900/50 rounded-xl border border-slate-800 p-4 flex-1 min-h-[250px] overflow-auto">
-            <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-3">Structure</h2>
-            <StructureView sszType={sszType} data={parsedValue} typeName={typeName} />
+          <div className="bg-[var(--color-surface-raised)] rounded-xl border border-[var(--color-border)] p-4 flex-1 min-h-[220px] overflow-auto">
+            <span className="text-[10px] font-medium text-[var(--color-text-muted)] uppercase tracking-widest">Structure</span>
+            <div className="mt-2">
+              <StructureView sszType={sszType} data={parsedValue} typeName={typeName} />
+            </div>
           </div>
         </div>
       </main>

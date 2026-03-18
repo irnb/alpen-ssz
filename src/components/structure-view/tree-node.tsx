@@ -11,34 +11,48 @@ export function TreeNode({node, depth = 0}: TreeNodeProps) {
   const hasChildren = node.children && node.children.length > 0;
 
   return (
-    <div className={depth > 0 ? "ml-4 border-l border-slate-800 pl-3" : ""}>
+    <div className={depth > 0 ? "ml-3.5 border-l border-[var(--color-border)]/50 pl-3" : ""}>
       <div
-        className="flex items-baseline gap-2 py-0.5 hover:bg-slate-800/50 rounded px-1 group cursor-default"
+        className={`flex items-baseline gap-1.5 py-[3px] rounded px-1.5 group ${
+          hasChildren ? "cursor-pointer hover:bg-[var(--color-surface-overlay)]/60" : "cursor-default"
+        }`}
         onClick={() => hasChildren && setExpanded(!expanded)}
       >
-        <span className="w-4 text-center text-slate-600 text-xs flex-shrink-0">
+        {/* Expand/collapse arrow */}
+        <span className="w-3.5 text-center text-[10px] flex-shrink-0 select-none">
           {hasChildren ? (
-            <span className={`inline-block transition-transform ${expanded ? "rotate-90" : ""}`}>&#9654;</span>
+            <span className={`inline-block transition-transform duration-150 text-[var(--color-text-muted)] ${expanded ? "rotate-90" : ""}`}>
+              &#9654;
+            </span>
           ) : (
-            <span className="text-slate-800">&middot;</span>
+            <span className="text-[var(--color-border)]">&#183;</span>
           )}
         </span>
 
-        <span className="font-mono text-sm text-slate-300">{node.key}</span>
+        {/* Key name */}
+        <span className="font-mono text-[12px] text-[var(--color-text-primary)]">{node.key}</span>
 
-        <span className={`font-mono text-xs ${categoryColors[node.category]}`}>{node.typeName}</span>
+        {/* Type annotation */}
+        <span className={`font-mono text-[10px] ${categoryColors[node.category]} opacity-70`}>
+          {node.typeName}
+        </span>
 
+        {/* Generalized index on hover */}
         {node.gindex && (
-          <span className="font-mono text-xs text-slate-700 opacity-0 group-hover:opacity-100 transition-opacity">
-            gi:{node.gindex}
+          <span className="font-mono text-[10px] text-[var(--color-text-muted)]/40 opacity-0 group-hover:opacity-100 transition-opacity">
+            [{node.gindex}]
           </span>
         )}
 
+        {/* Value (leaf nodes) */}
         {node.value != null && (
-          <span className="font-mono text-xs text-slate-400 truncate max-w-[300px]">= {node.value}</span>
+          <span className="font-mono text-[11px] text-[var(--color-text-secondary)] truncate max-w-[280px]">
+            {node.value}
+          </span>
         )}
       </div>
 
+      {/* Children */}
       {expanded && hasChildren && (
         <div>
           {node.children?.map((child, i) => (

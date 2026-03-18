@@ -2,30 +2,31 @@ import {dependencies} from "../../package.json";
 
 export function Footer() {
   return (
-    <footer className="border-t border-slate-800 px-6 py-4 text-center text-sm text-slate-500">
-      <p>
-        Made with love by{" "}
-        <a href="https://chainsafe.io" className="text-slate-400 hover:text-white transition-colors">
-          ChainSafe Systems
+    <footer className="border-t border-[var(--color-border)] px-5 py-3 flex items-center justify-between flex-wrap gap-2 text-[11px] text-[var(--color-text-muted)] font-mono max-w-[1800px] mx-auto w-full">
+      <div className="flex items-center gap-1">
+        <span>Built by</span>
+        <a href="https://chainsafe.io" className="text-[var(--color-text-secondary)] hover:text-[var(--color-eth-blue)] transition-colors">
+          ChainSafe
         </a>
-        {" & "}
+        <span>&</span>
         <a
           href="https://github.com/chainsafe/simpleserialize.com/graphs/contributors"
-          className="text-slate-400 hover:text-white transition-colors"
+          className="text-[var(--color-text-secondary)] hover:text-[var(--color-eth-blue)] transition-colors"
         >
-          ETH Consensus Friends
+          contributors
         </a>
-        {" | "}
+      </div>
+      <div className="flex items-center gap-3">
+        <span className="text-[var(--color-text-muted)]">
+          ssz {dependencies["@chainsafe/ssz"]} / types {dependencies["@lodestar/types"]}
+        </span>
         <a
           href="https://github.com/chainsafe/simpleserialize.com"
-          className="text-slate-400 hover:text-white transition-colors"
+          className="text-[var(--color-text-secondary)] hover:text-[var(--color-eth-blue)] transition-colors"
         >
           GitHub
         </a>
-      </p>
-      <p className="mt-1 text-xs text-slate-600 font-mono">
-        @chainsafe/ssz {dependencies["@chainsafe/ssz"]} | @lodestar/types {dependencies["@lodestar/types"]}
-      </p>
+      </div>
     </footer>
   );
 }
