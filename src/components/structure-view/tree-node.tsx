@@ -6,6 +6,40 @@ type TreeNodeProps = {
   depth?: number;
 };
 
+const VALUE_TRUNCATE_LEN = 64;
+
+function LeafValue({value}: {value: string}) {
+  const [expanded, setExpanded] = useState(false);
+  const isLong = value.length > VALUE_TRUNCATE_LEN;
+
+  if (!isLong) {
+    return (
+      <span className="font-mono text-[11px] text-[var(--color-text-secondary)] break-all">
+        {value}
+      </span>
+    );
+  }
+
+  return (
+    <span
+      className="font-mono text-[11px] text-[var(--color-text-secondary)] cursor-pointer hover:text-[var(--color-text-primary)] transition-colors"
+      onClick={(e) => {
+        e.stopPropagation();
+        setExpanded(!expanded);
+      }}
+    >
+      {expanded ? (
+        <span className="break-all">{value}</span>
+      ) : (
+        <>
+          {value.slice(0, VALUE_TRUNCATE_LEN)}
+          <span className="text-[var(--color-text-muted)]">... ({value.length} chars)</span>
+        </>
+      )}
+    </span>
+  );
+}
+
 export function TreeNode({node, depth = 0}: TreeNodeProps) {
   const [expanded, setExpanded] = useState(depth < 2);
   const hasChildren = node.children && node.children.length > 0;
@@ -30,25 +64,23 @@ export function TreeNode({node, depth = 0}: TreeNodeProps) {
         </span>
 
         {/* Key name */}
-        <span className="font-mono text-[12px] text-[var(--color-text-primary)]">{node.key}</span>
+        <span className="font-mono text-[12px] text-[var(--color-text-primary)] shrink-0">{node.key}</span>
 
         {/* Type annotation */}
-        <span className={`font-mono text-[10px] ${categoryColors[node.category]} opacity-70`}>
+        <span className={`font-mono text-[10px] ${categoryColors[node.category]} opacity-70 shrink-0`}>
           {node.typeName}
         </span>
 
         {/* Generalized index on hover */}
         {node.gindex && (
-          <span className="font-mono text-[10px] text-[var(--color-text-muted)]/40 opacity-0 group-hover:opacity-100 transition-opacity">
+          <span className="font-mono text-[10px] text-[var(--color-text-muted)]/40 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
             [{node.gindex}]
           </span>
         )}
 
         {/* Value (leaf nodes) */}
         {node.value != null && (
-          <span className="font-mono text-[11px] text-[var(--color-text-secondary)] truncate max-w-[280px]">
-            {node.value}
-          </span>
+          <LeafValue value={node.value} />
         )}
       </div>
 

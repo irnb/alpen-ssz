@@ -70,14 +70,11 @@ function formatValue(value: unknown): string {
   if (typeof value === "boolean") return String(value);
   if (typeof value === "number") return String(value);
   if (value instanceof BitArray) {
-    const set = value.getTrueBitIndexes().length;
-    return `${value.bitLen} bits, ${set} set`;
+    const bools = value.toBoolArray();
+    return bools.map((b) => (b ? "1" : "0")).join("");
   }
   if (value instanceof Uint8Array) {
-    if (value.length <= 32) {
-      return `0x${Array.from(value, (b) => b.toString(16).padStart(2, "0")).join("")}`;
-    }
-    return `0x${Array.from(value.slice(0, 16), (b) => b.toString(16).padStart(2, "0")).join("")}... (${value.length} bytes)`;
+    return `0x${Array.from(value, (b) => b.toString(16).padStart(2, "0")).join("")}`;
   }
   return String(value);
 }
