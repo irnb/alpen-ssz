@@ -1,4 +1,5 @@
 import {
+  BitArray,
   BitListType,
   BitVectorType,
   BooleanType,
@@ -68,6 +69,10 @@ function formatValue(value: unknown): string {
   if (typeof value === "bigint") return value.toString();
   if (typeof value === "boolean") return String(value);
   if (typeof value === "number") return String(value);
+  if (value instanceof BitArray) {
+    const set = value.getTrueBitIndexes().length;
+    return `${value.bitLen} bits, ${set} set`;
+  }
   if (value instanceof Uint8Array) {
     if (value.length <= 32) {
       return `0x${Array.from(value, (b) => b.toString(16).padStart(2, "0")).join("")}`;
