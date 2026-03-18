@@ -22,6 +22,7 @@ export default function App() {
   const [inputFormat, setInputFormat] = useState("yaml");
   const [outputFormat, setOutputFormat] = useState("hex");
   const [parsedValue, setParsedValue] = useState<unknown>(null);
+  const [inputMode, setInputMode] = useState<"editor" | "builder">("builder");
 
   // Worker
   const worker = useWorker();
@@ -84,6 +85,38 @@ export default function App() {
     [typeName]
   );
 
+  // Handle builder value change — sync to text input
+  const handleBuilderValueChange = useCallback(
+    (value: unknown) => {
+      setParsedValue(value);
+      if (sszType) {
+        try {
+          const dumped = inputFormats[inputFormat].dump(value, sszType);
+          setInput(dumped);
+        } catch {
+          // Keep going even if dump fails
+        }
+      }
+    },
+    [sszType, inputFormat]
+  );
+
+  // Handle input mode change — sync data between modes
+  const handleInputModeChange = useCallback(
+    (mode: "editor" | "builder") => {
+      if (mode === "builder" && parsedValue == null && sszType && input) {
+        try {
+          const parsed = inputFormats[inputFormat].parse(input, sszType);
+          setParsedValue(parsed);
+        } catch {
+          // If parse fails, builder will show defaults
+        }
+      }
+      setInputMode(mode);
+    },
+    [parsedValue, sszType, input, inputFormat]
+  );
+
   // Handle input format change — re-dump current value in new format
   const handleInputFormatChange = useCallback(
     (format: string) => {
@@ -130,6 +163,12 @@ export default function App() {
               onInputFormatChange={handleInputFormatChange}
               onGenerateDefault={generateDefault}
               loading={result.loading}
+              inputMode={inputMode}
+              onInputModeChange={handleInputModeChange}
+              sszType={sszType}
+              typeName={typeName}
+              parsedValue={parsedValue}
+              onParsedValueChange={handleBuilderValueChange}
             />
           </div>
         </div>
