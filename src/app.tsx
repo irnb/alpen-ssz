@@ -40,7 +40,7 @@ export default function App() {
   // Get current SSZ type
   const sszType: Type<unknown> | null = forks[forkName]?.[typeName] ?? null;
 
-  // Generate default value when type/fork changes
+  // Generate default value — callable from button and auto-trigger
   const generateDefault = useCallback(async () => {
     if (!worker || !sszType) return;
     try {
@@ -54,10 +54,22 @@ export default function App() {
     }
   }, [worker, typeName, forkName, sszType, serializeMode, inputFormat]);
 
-  // Auto-generate default on initial load and type/fork change
+  // Auto-generate default ONLY on initial load and type/fork changes
+  // NOT on mode/format changes (those carry data across intentionally)
   useEffect(() => {
-    generateDefault();
-  }, [generateDefault]);
+    if (!worker || !sszType) return;
+    (async () => {
+      try {
+        const {value} = await worker.defaultValue(typeName, forkName);
+        const dumped = inputFormats[serializeMode ? inputFormat : "hex"].dump(value, sszType);
+        setInput(dumped);
+        setParsedValue(value);
+      } catch {
+        // Silently fail
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [worker, typeName, forkName]);
 
   // When mode changes, carry data across for round-trip
   const handleModeChange = useCallback(
