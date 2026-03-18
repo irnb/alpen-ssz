@@ -59,19 +59,45 @@ export default function App() {
     generateDefault();
   }, [generateDefault]);
 
-  // When mode changes, adjust formats and clear stale input
-  const handleModeChange = useCallback((serialize: boolean) => {
-    setSerializeMode(serialize);
-    setInput("");
-    setParsedValue(null);
-    if (serialize) {
-      setInputFormat("yaml");
-      setOutputFormat("hex");
-    } else {
-      setInputFormat("hex");
-      setOutputFormat("yaml");
-    }
-  }, []);
+  // When mode changes, carry data across for round-trip
+  const handleModeChange = useCallback(
+    (serialize: boolean) => {
+      if (!serialize && result.serialized) {
+        // Serialize → Deserialize: carry serialized hex into input
+        const hex = inputFormats.hex.dump(result.serialized, sszType!);
+        setSerializeMode(false);
+        setInputFormat("hex");
+        setOutputFormat("yaml");
+        setInput(hex);
+      } else if (serialize && result.deserialized != null && sszType) {
+        // Deserialize → Serialize: carry deserialized value into input
+        setSerializeMode(true);
+        setInputFormat("yaml");
+        setOutputFormat("hex");
+        try {
+          const dumped = inputFormats.yaml.dump(result.deserialized, sszType);
+          setInput(dumped);
+          setParsedValue(result.deserialized);
+        } catch {
+          setInput("");
+          setParsedValue(null);
+        }
+      } else {
+        // No data to carry — just switch and clear
+        setSerializeMode(serialize);
+        setInput("");
+        setParsedValue(null);
+        if (serialize) {
+          setInputFormat("yaml");
+          setOutputFormat("hex");
+        } else {
+          setInputFormat("hex");
+          setOutputFormat("yaml");
+        }
+      }
+    },
+    [result.serialized, result.deserialized, sszType]
+  );
 
   // Handle fork change — reset type if not available
   const handleForkChange = useCallback(
