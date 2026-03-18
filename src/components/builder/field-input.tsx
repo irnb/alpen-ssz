@@ -413,25 +413,37 @@ function BitField({
       </div>
       {expanded && (
         <div className="ml-3 pl-3 border-l border-[var(--color-border)]/40 py-1">
-          {/* Bit grid */}
-          <div className="flex flex-wrap gap-[2px] mb-2">
-            {bits.slice(0, 256).map((bit, i) => (
-              <button
-                key={i}
-                onClick={() => toggleBit(i)}
-                title={`bit ${i}: ${bit ? "1" : "0"}`}
-                className={`w-[14px] h-[14px] rounded-[2px] text-[8px] font-mono leading-none flex items-center justify-center transition-all ${
-                  bit
-                    ? "bg-[var(--color-ssz-boolean)] text-white"
-                    : "bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-text-muted)]/30 hover:border-[var(--color-ssz-boolean)]/40"
-                }`}
-              >
-                {bit ? "1" : "0"}
-              </button>
-            ))}
-            {bits.length > 256 && (
-              <span className="text-[10px] text-[var(--color-text-muted)] self-center ml-1">
-                ...{bits.length - 256} more
+          {/* Bit grid — 32 bits per row with index labels */}
+          <div className="flex flex-col gap-[2px] mb-2">
+            {Array.from({length: Math.ceil(Math.min(bits.length, 512) / 32)}, (_, row) => {
+              const start = row * 32;
+              const rowBits = bits.slice(start, start + 32);
+              return (
+                <div key={start} className="flex items-center gap-[2px]">
+                  <span className="text-[9px] font-mono text-[var(--color-text-muted)]/40 w-[32px] text-right shrink-0 select-none pr-1">
+                    {start}
+                  </span>
+                  {rowBits.map((bit, j) => (
+                    <button
+                      key={start + j}
+                      onClick={() => toggleBit(start + j)}
+                      title={`bit ${start + j}: ${bit ? "1" : "0"}`}
+                      className={`w-[14px] h-[14px] rounded-[2px] text-[8px] font-mono leading-none flex items-center justify-center transition-all ${
+                        bit
+                          ? "bg-[var(--color-ssz-boolean)] text-white"
+                          : "bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-text-muted)]/30 hover:border-[var(--color-ssz-boolean)]/40"
+                      }`}
+                    >
+                      {bit ? "1" : "0"}
+                    </button>
+                  ))}
+                  {/* Byte separator ticks every 8 bits */}
+                </div>
+              );
+            })}
+            {bits.length > 512 && (
+              <span className="text-[10px] text-[var(--color-text-muted)] ml-[34px]">
+                ...{bits.length - 512} more bits
               </span>
             )}
           </div>
