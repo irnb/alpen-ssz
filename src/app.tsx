@@ -5,6 +5,7 @@ import {Header} from "./components/header";
 import {InputPanel} from "./components/input-panel";
 import {OutputPanel} from "./components/output-panel";
 import {StructureView} from "./components/structure-view/structure-view";
+import {Toolbar} from "./components/toolbar";
 import {useSsz} from "./hooks/use-ssz";
 import {useWorker} from "./hooks/use-worker";
 import {inputFormats, serializeOutputFormats} from "./lib/formats";
@@ -187,36 +188,41 @@ export default function App() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[var(--color-surface)]">
-      <Header forkName={forkName} typeName={typeName} onForkChange={handleForkChange} onTypeChange={setTypeName} />
+      <Header />
+      <Toolbar
+        forkName={forkName}
+        typeName={typeName}
+        serializeMode={serializeMode}
+        onForkChange={handleForkChange}
+        onTypeChange={setTypeName}
+        onModeChange={handleModeChange}
+      />
 
-      <main className="flex-1 flex flex-col lg:flex-row gap-3 p-3 max-w-[1800px] mx-auto w-full">
+      <main className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-2.5 p-2.5 max-w-[1800px] mx-auto w-full">
         {/* Left: Input */}
-        <div className="lg:w-1/2 flex flex-col">
-          <div className="bg-[var(--color-surface-raised)] rounded-xl border border-[var(--color-border)] p-4 flex-1">
-            <InputPanel
-              serializeMode={serializeMode}
-              input={input}
-              inputFormat={inputFormat}
-              onInputChange={setInput}
-              onInputFormatChange={handleInputFormatChange}
-              onGenerateDefault={generateDefault}
-              loading={result.loading}
-              inputMode={inputMode}
-              onInputModeChange={handleInputModeChange}
-              sszType={sszType}
-              typeName={typeName}
-              parsedValue={parsedValue}
-              onParsedValueChange={handleBuilderValueChange}
-            />
-          </div>
+        <div className="bg-[var(--color-surface-raised)] rounded-xl border border-[var(--color-border)] p-4 min-h-0">
+          <InputPanel
+            serializeMode={serializeMode}
+            input={input}
+            inputFormat={inputFormat}
+            onInputChange={setInput}
+            onInputFormatChange={handleInputFormatChange}
+            onGenerateDefault={generateDefault}
+            loading={result.loading}
+            inputMode={inputMode}
+            onInputModeChange={handleInputModeChange}
+            sszType={sszType}
+            typeName={typeName}
+            parsedValue={parsedValue}
+            onParsedValueChange={handleBuilderValueChange}
+          />
         </div>
 
-        {/* Right: Output + Structure */}
-        <div className="lg:w-1/2 flex flex-col gap-3">
+        {/* Right: Output + Structure stacked */}
+        <div className="flex flex-col gap-2.5 min-h-0">
           <div className="bg-[var(--color-surface-raised)] rounded-xl border border-[var(--color-border)] p-4">
             <OutputPanel
               serializeMode={serializeMode}
-              onModeChange={handleModeChange}
               serialized={result.serialized}
               hashTreeRoot={result.hashTreeRoot}
               deserialized={result.deserialized}
@@ -228,7 +234,7 @@ export default function App() {
               onOutputFormatChange={setOutputFormat}
             />
           </div>
-          <div className="bg-[var(--color-surface-raised)] rounded-xl border border-[var(--color-border)] p-4 flex-1 min-h-[220px] overflow-auto">
+          <div className="bg-[var(--color-surface-raised)] rounded-xl border border-[var(--color-border)] p-4 flex-1 min-h-[200px] overflow-auto">
             <span className="text-[10px] font-medium text-[var(--color-text-muted)] uppercase tracking-widest">Structure</span>
             <div className="mt-2">
               <StructureView sszType={sszType} data={parsedValue} typeName={typeName} />

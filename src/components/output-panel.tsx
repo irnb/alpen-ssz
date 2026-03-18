@@ -11,7 +11,6 @@ import {CopyButton} from "./ui/copy-button";
 
 type OutputPanelProps = {
   serializeMode: boolean;
-  onModeChange: (serialize: boolean) => void;
   serialized: Uint8Array | null;
   hashTreeRoot: Uint8Array | null;
   deserialized: unknown | null;
@@ -36,7 +35,6 @@ function downloadBlob(data: Uint8Array | string, filename: string) {
 
 export function OutputPanel({
   serializeMode,
-  onModeChange,
   serialized,
   hashTreeRoot,
   deserialized,
@@ -67,30 +65,9 @@ export function OutputPanel({
 
   return (
     <div className="flex flex-col gap-2.5">
-      {/* Mode tabs + format tabs */}
+      {/* Header row */}
       <div className="flex items-center justify-between">
-        <div className="flex gap-0.5 bg-[var(--color-surface)]/60 rounded-md p-0.5 border border-[var(--color-border)]">
-          <button
-            onClick={() => onModeChange(true)}
-            className={`px-3 py-1 text-[11px] font-mono rounded-[3px] transition-all duration-150 ${
-              serializeMode
-                ? "bg-[var(--color-eth-blue)]/15 text-[var(--color-eth-blue)] shadow-[inset_0_0_0_1px_var(--color-eth-blue-dim)]"
-                : "text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]"
-            }`}
-          >
-            Serialize
-          </button>
-          <button
-            onClick={() => onModeChange(false)}
-            className={`px-3 py-1 text-[11px] font-mono rounded-[3px] transition-all duration-150 ${
-              !serializeMode
-                ? "bg-[var(--color-eth-blue)]/15 text-[var(--color-eth-blue)] shadow-[inset_0_0_0_1px_var(--color-eth-blue-dim)]"
-                : "text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]"
-            }`}
-          >
-            Deserialize
-          </button>
-        </div>
+        <span className="text-[11px] font-medium text-[var(--color-text-muted)] uppercase tracking-widest">Output</span>
         <FormatTabs options={formatNames} selected={outputFormat} onChange={onOutputFormatChange} />
       </div>
 
