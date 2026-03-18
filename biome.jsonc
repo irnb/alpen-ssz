@@ -5,7 +5,7 @@
   },
   "extends": ["@chainsafe/biomejs-config", "@chainsafe/biomejs-config/recommended", "@chainsafe/biomejs-config/esm"],
   "files": {
-    "include": ["src/**/*.tsx"]
+    "include": ["src/**/*.ts", "src/**/*.tsx"]
   },
   "linter": {
     "rules": {
