@@ -5,12 +5,14 @@
   },
   "extends": ["@chainsafe/biomejs-config", "@chainsafe/biomejs-config/recommended", "@chainsafe/biomejs-config/esm"],
   "files": {
-    "include": ["src/**/*.tsx"]
+    "include": ["src/**/*.ts", "src/**/*.tsx"]
   },
   "linter": {
     "rules": {
       "suspicious": {
-        "noConsoleLog": "off"
+        "noConsoleLog": "off",
+        // SSZ list/vector items have no stable key other than index
+        "noArrayIndexKey": "off"
       },
       "style": {
         // Our team does not like this syntax
