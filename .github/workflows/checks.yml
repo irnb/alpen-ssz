@@ -6,8 +6,12 @@ jobs:
   Checks:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - run: yarn install
-      - run: yarn build
-      - run: yarn check-types
-      - run: yarn lint
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: npm ci
+      - run: npm run build
+      - run: npm run check-types
+      - run: npm run lint
