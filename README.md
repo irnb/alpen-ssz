@@ -52,61 +52,6 @@ src/components/builder/field-input.tsx  # extended for Union/Optional/StableCont
    npm run codegen
    ```
 
-## Deployment
-
-### GitHub Pages — step by step
-
-The repo ships with `.github/workflows/publish.yml` that clones the three
-source repos, regenerates types via `cargo`, builds the Vite SPA, and
-publishes `./dist` to GitHub Pages.
-
-1. **Push this repo to GitHub.** Create a fresh repository on GitHub (e.g.
-   `your-org/alpen-ssz`) and push the local `alpen-ssz` directory:
-   ```bash
-   cd alpen-ssz
-   git init -b main
-   git add .
-   git commit -m "Initial commit"
-   git remote add origin https://github.com/your-org/alpen-ssz.git
-   git push -u origin main
-   ```
-
-2. **Enable GitHub Pages.** On GitHub, open the repo → **Settings → Pages**.
-   Under **Build and deployment → Source**, pick **GitHub Actions**. Don't
-   pick "Deploy from a branch" — the workflow uses the newer Actions deploy.
-
-3. **Trigger the deploy.** Either push any commit to `main` / `master`, or
-   run the workflow manually: **Actions → Deploy to GitHub Pages → Run
-   workflow**. The source repos (`alpenlabs/alpen`, `alpenlabs/asm`,
-   `alpenlabs/strata-common`) are public, so the default `GITHUB_TOKEN`
-   reads them without any PAT setup.
-
-4. **Find your URL.** When the workflow finishes, **Settings → Pages**
-   shows the live URL — typically
-   `https://your-org.github.io/alpen-ssz/`. The first deploy can take ~3
-   minutes; subsequent deploys are faster thanks to the cargo cache.
-
-### Custom domain
-
-If you serve from a custom domain (or a Vercel/Netlify root path), the
-default `BASE_PATH=/repo-name/` is wrong. Edit
-`.github/workflows/publish.yml` and either remove the `BASE_PATH` env line
-(serves from `/`) or set it to your subpath. For Pages with a custom
-domain, also add a `CNAME` file under `public/`.
-
-### Vercel / Netlify / other static hosts
-
-The build is a plain Vite SPA; any static host works. Set the build
-command to `npm run build` and publish `./dist`. If the site is served at
-the domain root, leave `BASE_PATH` unset; otherwise set it to the path
-prefix.
-
-For hosts that don't provide Rust, generate the TypeScript locally first
-(`npm run codegen`) and either:
-- check `src/generated/` into the repo (drop it from `.gitignore`), or
-- have CI install Rust + clone the source repos as in the GitHub Pages
-  workflow.
-
 ## Source-repo settings (in the UI)
 
 The toolbar's **Sources** button (top-right) lists every repo defined in
