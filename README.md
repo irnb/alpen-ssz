@@ -75,36 +75,16 @@ publishes `./dist` to GitHub Pages.
    Under **Build and deployment → Source**, pick **GitHub Actions**. Don't
    pick "Deploy from a branch" — the workflow uses the newer Actions deploy.
 
-3. **Create a token that can read the source repos.** The workflow needs to
-   clone `alpenlabs/alpen`, `alpenlabs/asm`, `alpenlabs/strata-common`.
-   - If those repos are **public**, edit `.github/workflows/publish.yml`
-     and replace each `${{ secrets.ALPEN_REPO_TOKEN }}` with
-     `${{ secrets.GITHUB_TOKEN }}`. Then skip step 4.
-   - If they are **private**, generate a fine-grained Personal Access Token:
-     - GitHub avatar → **Settings → Developer settings → Personal access
-       tokens → Fine-grained tokens → Generate new token**.
-     - **Resource owner**: `alpenlabs` (the org that owns the source repos).
-     - **Repository access**: pick the three source repos.
-     - **Repository permissions**: **Contents: Read-only**, **Metadata: Read-only**.
-     - Copy the generated token.
+3. **Trigger the deploy.** Either push any commit to `main` / `master`, or
+   run the workflow manually: **Actions → Deploy to GitHub Pages → Run
+   workflow**. The source repos (`alpenlabs/alpen`, `alpenlabs/asm`,
+   `alpenlabs/strata-common`) are public, so the default `GITHUB_TOKEN`
+   reads them without any PAT setup.
 
-4. **Add the token as a repo secret.** In the `your-org/alpen-ssz` repo →
-   **Settings → Secrets and variables → Actions → New repository secret**:
-   - **Name**: `ALPEN_REPO_TOKEN`
-   - **Value**: the token from step 3
-   - Click **Add secret**.
-
-5. **Trigger the deploy.** Either push any commit to `main`, or run the
-   workflow manually: **Actions → Deploy to GitHub Pages → Run workflow**.
-
-6. **Find your URL.** When the workflow finishes, **Settings → Pages**
+4. **Find your URL.** When the workflow finishes, **Settings → Pages**
    shows the live URL — typically
    `https://your-org.github.io/alpen-ssz/`. The first deploy can take ~3
    minutes; subsequent deploys are faster thanks to the cargo cache.
-
-If the workflow fails at "Checkout alpen", the token doesn't have read
-access to that repo — re-do step 3 and confirm the three repos are
-listed under "Repository access".
 
 ### Custom domain
 

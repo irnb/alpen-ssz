@@ -21,16 +21,13 @@ jobs:
       - name: Checkout alpen-ssz
         uses: actions/checkout@v4
 
-      # Source repos consumed by the codegen. The runner needs read access to
-      # alpenlabs/alpen, alpenlabs/asm, alpenlabs/strata-common.
-      #
-      # Set repo secret ALPEN_REPO_TOKEN to a PAT (or GitHub App token) that
-      # can read those repos. If they are public, swap for `${{ secrets.GITHUB_TOKEN }}`.
+      # Source repos consumed by the codegen. These are public, so the
+      # default GITHUB_TOKEN can read them — no PAT setup required.
       - name: Checkout alpen
         uses: actions/checkout@v4
         with:
           repository: alpenlabs/alpen
-          token: ${{ secrets.ALPEN_REPO_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           path: ../alpen
           ref: main
 
@@ -38,7 +35,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: alpenlabs/asm
-          token: ${{ secrets.ALPEN_REPO_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           path: ../asm
           ref: main
 
@@ -46,7 +43,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: alpenlabs/strata-common
-          token: ${{ secrets.ALPEN_REPO_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           path: ../strata-common
           ref: main
 
