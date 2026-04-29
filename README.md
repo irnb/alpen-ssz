@@ -1,6 +1,6 @@
 # alpen-ssz
 
-Internal dev/debug web tool for encoding and decoding Alpen Labs SSZ types.
+dev/debug web tool for encoding and decoding Alpen Labs SSZ types.
 
 Forked from [ChainSafe simpleserialize.com](https://github.com/ChainSafe/simpleserialize.com) (LGPL-3.0).
 The frontend, structure view, builder form, YAML/hex/JSON tabs, and Web Worker
