@@ -8,6 +8,10 @@ import {
   ContainerType,
   ListBasicType,
   ListCompositeType,
+  NoneType,
+  OptionalType,
+  ProfileType,
+  StableContainerType,
   type Type,
   UintBigintType,
   UintNumberType,
@@ -33,7 +37,13 @@ export function getCategory(type: Type<unknown>): SszCategory {
   if (type instanceof UintNumberType || type instanceof UintBigintType) return "uint";
   if (type instanceof ByteVectorType || type instanceof ByteListType) return "bytes";
   if (type instanceof BooleanType || type instanceof BitListType || type instanceof BitVectorType) return "boolean";
-  if (type instanceof ContainerType) return "container";
+  if (
+    type instanceof ContainerType ||
+    type instanceof StableContainerType ||
+    type instanceof ProfileType
+  )
+    return "container";
+  if (type instanceof UnionType || type instanceof OptionalType) return "container";
   if (
     type instanceof ListBasicType ||
     type instanceof ListCompositeType ||
@@ -41,6 +51,7 @@ export function getCategory(type: Type<unknown>): SszCategory {
     type instanceof VectorCompositeType
   )
     return "list";
+  if (type instanceof NoneType) return "unknown";
   return "unknown";
 }
 
@@ -53,11 +64,15 @@ export function getTypeName(type: Type<unknown>): string {
   if (type instanceof BitListType) return `BitList[${type.limitBits}]`;
   if (type instanceof BitVectorType) return `BitVector[${type.lengthBits}]`;
   if (type instanceof ContainerType) return "Container";
+  if (type instanceof StableContainerType) return "StableContainer";
+  if (type instanceof ProfileType) return "Profile";
+  if (type instanceof OptionalType) return "Optional";
   if (type instanceof ListBasicType) return `List[${type.limit}]`;
   if (type instanceof ListCompositeType) return `List[${type.limit}]`;
   if (type instanceof VectorBasicType) return `Vector[${type.length}]`;
   if (type instanceof VectorCompositeType) return `Vector[${type.length}]`;
   if (type instanceof UnionType) return "Union";
+  if (type instanceof NoneType) return "None";
   return "unknown";
 }
 
@@ -97,8 +112,15 @@ export function buildTree(type: Type<unknown>, data: unknown, key: string, ginde
     return {key, typeName, category, value: text, valueSuffix: suffix, children: null, gindex};
   }
 
-  if (type instanceof ContainerType) {
-    const fields = type.fields as Record<string, Type<unknown>>;
+  if (
+    type instanceof ContainerType ||
+    type instanceof StableContainerType ||
+    type instanceof ProfileType
+  ) {
+    const fields = (type as ContainerType<Record<string, Type<unknown>>>).fields as Record<
+      string,
+      Type<unknown>
+    >;
     const fieldNames = Object.keys(fields);
     const depth = Math.ceil(Math.log2(Math.max(fieldNames.length, 1)));
     const children = fieldNames.map((fieldName, i) => {
@@ -107,6 +129,42 @@ export function buildTree(type: Type<unknown>, data: unknown, key: string, ginde
       return buildTree(fields[fieldName], fieldData, fieldName, fieldGindex);
     });
     return {key, typeName, category, value: null, valueSuffix: null, children, gindex};
+  }
+
+  if (type instanceof OptionalType) {
+    const inner = (type as unknown as {elementType: Type<unknown>}).elementType;
+    if (data === null || data === undefined) {
+      return {
+        key,
+        typeName,
+        category,
+        value: "absent",
+        valueSuffix: null,
+        children: null,
+        gindex,
+      };
+    }
+    return buildTree(inner, data, key, gindex);
+  }
+
+  if (type instanceof UnionType) {
+    const variants = (type as unknown as {types: Type<unknown>[]}).types ?? [];
+    const obj = data && typeof data === "object" ? (data as {selector?: number; value?: unknown}) : {};
+    const selector = typeof obj.selector === "number" ? obj.selector : 0;
+    const variantType = variants[selector];
+    if (!variantType || variantType instanceof NoneType) {
+      return {
+        key,
+        typeName: `${typeName} (variant ${selector})`,
+        category,
+        value: "none",
+        valueSuffix: null,
+        children: null,
+        gindex,
+      };
+    }
+    const child = buildTree(variantType, obj.value, `variant[${selector}]`, gindex);
+    return {key, typeName, category, value: null, valueSuffix: null, children: [child], gindex};
   }
 
   if (

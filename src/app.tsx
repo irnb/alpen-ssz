@@ -6,13 +6,14 @@ import {InputPanel} from "./components/input-panel";
 import {OutputPanel} from "./components/output-panel";
 import {StructureView} from "./components/structure-view/structure-view";
 import {Toolbar} from "./components/toolbar";
+import {useSourceToggles} from "./hooks/use-source-toggles";
 import {useSsz} from "./hooks/use-ssz";
 import {useWorker} from "./hooks/use-worker";
 import {inputFormats, serializeOutputFormats} from "./lib/formats";
 import {type ForkName, forks, typeNames} from "./lib/types";
 
-const DEFAULT_FORK = "fulu";
-const DEFAULT_TYPE = "BeaconBlock";
+const DEFAULT_FORK = "asm/subprotocols/checkpoint/types";
+const DEFAULT_TYPE = "CheckpointPayload";
 
 export default function App() {
   // Core state
@@ -27,6 +28,9 @@ export default function App() {
 
   // Worker
   const worker = useWorker();
+
+  // Source-repo enable/disable toggles persisted in localStorage.
+  const sourceToggles = useSourceToggles();
 
   // SSZ processing
   const result = useSsz(worker, serializeMode ? "serialize" : "deserialize", forkName, typeName, input, inputFormat);
@@ -69,7 +73,8 @@ export default function App() {
   const handleModeChange = useCallback(
     (serialize: boolean) => {
       if (!serialize && result.serialized) {
-        // Serialize → Deserialize: carry serialized bytes as hex into input
+        // Serialize → Deserialize: carry serialized bytes as raw hex (no
+        // varint length prefix) so we land on the "hex" tab, not "envelope".
         const hex = serializeOutputFormats.hex.dump(result.serialized);
         setSerializeMode(false);
         setInputFormat("hex");
@@ -97,7 +102,9 @@ export default function App() {
           setInputFormat("yaml");
           setOutputFormat("hex");
         } else {
-          setInputFormat("hex");
+          // Default to "envelope" for L1-paste workflow; user can switch to
+          // "hex" for raw SSZ.
+          setInputFormat("envelope");
           setOutputFormat("yaml");
         }
       }
@@ -105,14 +112,17 @@ export default function App() {
     [result.serialized, result.deserialized, sszType]
   );
 
-  // Handle fork change — reset type if not available
+  // Handle module change — reset type to first available if current isn't present.
+  // Also clear stale input/parsed value so the worker doesn't try to decode the
+  // previous module's bytes against the new type.
   const handleForkChange = useCallback(
     (newFork: ForkName) => {
       setForkName(newFork);
-      const types = typeNames(forks[newFork]);
-      if (!types.includes(typeName)) {
-        setTypeName(DEFAULT_TYPE);
-      }
+      const types = typeNames(forks[newFork] ?? {});
+      const nextType = types.includes(typeName) ? typeName : types[0] ?? "";
+      if (nextType !== typeName) setTypeName(nextType);
+      setInput("");
+      setParsedValue(null);
     },
     [typeName]
   );
@@ -189,6 +199,10 @@ export default function App() {
         onForkChange={handleForkChange}
         onTypeChange={setTypeName}
         onModeChange={handleModeChange}
+        isSourceEnabled={sourceToggles.isEnabled}
+        onToggleSource={sourceToggles.toggle}
+        onEnableAllSources={sourceToggles.enableAll}
+        onDisableAllSources={sourceToggles.disableAll}
       />
 
       <main className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-2.5 p-2.5 max-w-[1800px] mx-auto w-full">

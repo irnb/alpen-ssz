@@ -2,3 +2,15 @@
 node_modules
 dist
 yarn-error.log
+
+# Generated TypeScript from .ssz schemas (run `npm run codegen` to regenerate)
+src/generated
+
+# Per-developer override of source repo paths
+schema-sources.local.toml
+
+# Rust build output for the codegen tool
+tools/ssz-to-ts/target
+
+# Local IDE / agent config
+.claude/

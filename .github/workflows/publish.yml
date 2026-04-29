@@ -2,24 +2,90 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches:
-      - master
+    branches: [master, main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
 
 jobs:
-  publish:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout alpen-ssz
+        uses: actions/checkout@v4
+
+      # Source repos consumed by the codegen. The runner needs read access to
+      # alpenlabs/alpen, alpenlabs/asm, alpenlabs/strata-common.
+      #
+      # Set repo secret ALPEN_REPO_TOKEN to a PAT (or GitHub App token) that
+      # can read those repos. If they are public, swap for `${{ secrets.GITHUB_TOKEN }}`.
+      - name: Checkout alpen
+        uses: actions/checkout@v4
+        with:
+          repository: alpenlabs/alpen
+          token: ${{ secrets.ALPEN_REPO_TOKEN }}
+          path: ../alpen
+          ref: main
+
+      - name: Checkout asm
+        uses: actions/checkout@v4
+        with:
+          repository: alpenlabs/asm
+          token: ${{ secrets.ALPEN_REPO_TOKEN }}
+          path: ../asm
+          ref: main
+
+      - name: Checkout strata-common
+        uses: actions/checkout@v4
+        with:
+          repository: alpenlabs/strata-common
+          token: ${{ secrets.ALPEN_REPO_TOKEN }}
+          path: ../strata-common
+          ref: main
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: tools/ssz-to-ts -> tools/ssz-to-ts/target
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - run: npm ci
-      - run: npm run build
-      - name: Deploy
-        uses: peaceiris/actions-gh-pages@v3
+
+      - name: Install JS deps
+        run: npm ci
+
+      - name: Generate TypeScript from .ssz schemas
+        run: npm run codegen
+
+      - name: Build (GitHub Pages)
+        run: npm run build
+        env:
+          BASE_PATH: /${{ github.event.repository.name }}/
+
+      - name: Upload pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_branch: gh-pages
-          publish_dir: ./dist
-          cname: simpleserialize.com
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

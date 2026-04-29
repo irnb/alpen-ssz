@@ -1,36 +1,29 @@
-const SPEC_VERSION = "1.6.0";
-
 export function Header() {
   return (
     <header className="border-b border-[var(--color-border)] bg-[var(--color-surface-raised)]/80 backdrop-blur-sm px-5 py-4">
       <div className="flex items-center justify-between max-w-[1800px] mx-auto">
         <div>
-          <a
-            href="https://lodestar.chainsafe.io"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-[10px] font-medium uppercase tracking-[0.15em] text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)] transition-colors"
-          >
-            Lodestar
-          </a>
+          <span className="text-[10px] font-medium uppercase tracking-[0.15em] text-[var(--color-text-muted)]">
+            Alpen Labs
+          </span>
           <h1 className="text-lg font-semibold font-mono tracking-tight text-[var(--color-text-primary)]">
-            SSZ Playground
+            Alpen SSZ Inspector
           </h1>
           <p className="text-[12px] text-[var(--color-text-secondary)] mt-0.5">
             Encode, decode &amp; inspect{" "}
             <a
-              href={`https://github.com/ethereum/consensus-specs/blob/v${SPEC_VERSION}/ssz/simple-serialize.md`}
+              href="https://github.com/ethereum/consensus-specs/blob/dev/ssz/simple-serialize.md"
               target="_blank"
               rel="noopener noreferrer"
               className="text-[var(--color-eth-blue)] hover:underline"
             >
               Simple Serialize
             </a>{" "}
-            data
+            types from the alpen, asm &amp; strata-common repos
           </p>
         </div>
         <a
-          href="https://github.com/chainsafe/simpleserialize.com"
+          href="https://github.com/alpenlabs"
           target="_blank"
           rel="noopener noreferrer"
           className="text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)] transition-colors"

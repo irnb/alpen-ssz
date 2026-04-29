@@ -49,17 +49,30 @@ export function OutputPanel({
 
   let outputText = "";
   let hashTreeRootText = "";
+  let dumpError: string | null = null;
 
   if (serializeMode && serialized) {
     const fmt = serializeOutputFormats[outputFormat];
     if (fmt) {
-      outputText = fmt.dump(serialized);
-      hashTreeRootText = hashTreeRoot ? serializeOutputFormats.hex.dump(hashTreeRoot) : "";
+      try {
+        outputText = fmt.dump(serialized);
+        hashTreeRootText = hashTreeRoot ? serializeOutputFormats.hex.dump(hashTreeRoot) : "";
+      } catch (e) {
+        dumpError = e instanceof Error ? e.message : String(e);
+      }
     }
   } else if (!serializeMode && deserialized != null && sszType) {
     const fmt = deserializeOutputFormats[outputFormat];
     if (fmt) {
-      outputText = fmt.dump(deserialized, sszType);
+      try {
+        outputText = fmt.dump(deserialized, sszType);
+      } catch (e) {
+        // Common case: the deserialized value still belongs to a previous
+        // type (e.g. user just switched modules and the worker hasn't
+        // finished the new decode yet). Show a friendly note instead of
+        // crashing the React tree.
+        dumpError = e instanceof Error ? e.message : String(e);
+      }
     }
   }
 
@@ -72,9 +85,9 @@ export function OutputPanel({
       </div>
 
       {/* Error display */}
-      {error && (
+      {(error || dumpError) && (
         <div className="p-3 rounded-lg bg-red-500/5 border border-red-500/20 text-red-400/90 text-[12px] font-mono leading-relaxed">
-          {error}
+          {error ?? dumpError}
         </div>
       )}
 

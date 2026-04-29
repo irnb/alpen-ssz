@@ -31,20 +31,42 @@ export function useSsz(
 
   useEffect(() => {
     if (!worker || !debouncedInput.trim() || !typeName || !forkName) {
+      // Clear any stale result tied to a previous type/mode so the OutputPanel
+      // doesn't try to dump it against the new sszType.
+      setResult({
+        serialized: null,
+        hashTreeRoot: null,
+        deserialized: null,
+        error: null,
+        loading: false,
+      });
       return;
     }
 
-    // Skip if debounced input doesn't match the current mode (stale data from mode switch)
+    // Skip stale data from a serialize -> deserialize mode switch where the
+    // input still looks like YAML/JSON/structured text rather than hex.
     const trimmed = debouncedInput.trim();
-    if (mode === "deserialize" && inputFormat === "hex" && !trimmed.startsWith("0x")) {
-      return;
+    if (mode === "deserialize" && (inputFormat === "hex" || inputFormat === "envelope")) {
+      const hex = trimmed.startsWith("0x") ? trimmed.slice(2) : trimmed;
+      if (!/^[0-9a-fA-F]*$/.test(hex) || hex.length === 0 || hex.length % 2 !== 0) {
+        return;
+      }
     }
     if (mode === "serialize" && inputFormat !== "hex" && trimmed.startsWith("0x")) {
       return;
     }
 
     let cancelled = false;
-    setResult((prev) => ({...prev, loading: true, error: null}));
+    // Wipe stale serialized/deserialized BEFORE starting the new worker call,
+    // so a render that happens while the worker is in flight doesn't try to
+    // toJson a value shaped for a previous type.
+    setResult({
+      serialized: null,
+      hashTreeRoot: null,
+      deserialized: null,
+      error: null,
+      loading: true,
+    });
 
     const run = async () => {
       try {

@@ -4,10 +4,11 @@ import {Buffer} from "buffer";
 // Dynamic imports so SSZ libraries load AFTER Buffer is polyfilled
 // (static imports are hoisted and execute before module body)
 async function main() {
-  const [{createRoot}, {Toaster}, {default: App}] = await Promise.all([
+  const [{createRoot}, {Toaster}, {default: App}, {ErrorBoundary}] = await Promise.all([
     import("react-dom/client"),
     import("sonner"),
     import("./app"),
+    import("./components/error-boundary"),
   ]);
   await import("./index.css");
 
@@ -15,7 +16,9 @@ async function main() {
   if (!root) throw new Error("Root element not found");
   createRoot(root).render(
     <>
-      <App />
+      <ErrorBoundary>
+        <App />
+      </ErrorBoundary>
       <Toaster theme="dark" position="bottom-right" />
     </>
   );

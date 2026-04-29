@@ -8,12 +8,11 @@ import * as Comlink from "comlink";
 // Lazy-load SSZ libraries via dynamic import so they resolve
 // AFTER the Buffer polyfill assignment above has executed.
 const libs = (async () => {
-  const [{fromHexString}, {inputFormats}, {forks}] = await Promise.all([
-    import("@chainsafe/ssz"),
+  const [{inputFormats}, {forks}] = await Promise.all([
     import("../lib/formats"),
     import("../lib/types"),
   ]);
-  return {fromHexString, inputFormats, forks};
+  return {inputFormats, forks};
 })();
 
 type Type<T> = import("@chainsafe/ssz").Type<T>;
@@ -39,16 +38,16 @@ const worker = {
   },
 
   async deserialize(typeName: string, forkName: string, data: string, inputFormat: string) {
-    const {fromHexString, forks} = await libs;
+    const {forks, inputFormats} = await libs;
     const type = getType(forks, typeName, forkName);
-    let bytes: Uint8Array;
     if (inputFormat === "base64") {
       const binstr = atob(data);
-      bytes = Uint8Array.from(binstr, (ch) => ch.charCodeAt(0));
-    } else {
-      bytes = fromHexString(data);
+      const bytes = Uint8Array.from(binstr, (ch) => ch.charCodeAt(0));
+      const deserialized = type.deserialize(bytes);
+      return {deserialized};
     }
-    const deserialized = type.deserialize(bytes);
+    // hex / envelope / yaml / json all route through inputFormats.parse.
+    const deserialized = inputFormats[inputFormat].parse(data, type);
     return {deserialized};
   },
 

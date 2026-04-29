@@ -1,4 +1,6 @@
+import {moduleToSource} from "../generated/sources";
 import {type ForkName, forkNames, forks, typeNames} from "../lib/types";
+import {SourcesMenu} from "./sources-menu";
 
 type ToolbarProps = {
   forkName: string;
@@ -7,10 +9,29 @@ type ToolbarProps = {
   onForkChange: (fork: ForkName) => void;
   onTypeChange: (type: string) => void;
   onModeChange: (serialize: boolean) => void;
+  isSourceEnabled: (sourceName: string) => boolean;
+  onToggleSource: (sourceName: string) => void;
+  onEnableAllSources: () => void;
+  onDisableAllSources: () => void;
 };
 
-export function Toolbar({forkName, typeName, serializeMode, onForkChange, onTypeChange, onModeChange}: ToolbarProps) {
-  const types = typeNames(forks[forkName]);
+export function Toolbar({
+  forkName,
+  typeName,
+  serializeMode,
+  onForkChange,
+  onTypeChange,
+  onModeChange,
+  isSourceEnabled,
+  onToggleSource,
+  onEnableAllSources,
+  onDisableAllSources,
+}: ToolbarProps) {
+  const visibleModules = forkNames.filter((m) => {
+    const src = moduleToSource[m];
+    return !src || isSourceEnabled(src);
+  });
+  const types = typeNames(forks[forkName] ?? {});
 
   return (
     <div className="border-b border-[var(--color-border)] bg-[var(--color-surface-raised)]/40 px-5 py-2.5">
@@ -48,13 +69,13 @@ export function Toolbar({forkName, typeName, serializeMode, onForkChange, onType
 
         {/* Fork */}
         <div className="flex items-center gap-1.5">
-          <span className="text-[10px] text-[var(--color-text-muted)] uppercase tracking-widest font-medium">Fork</span>
+          <span className="text-[10px] text-[var(--color-text-muted)] uppercase tracking-widest font-medium">Module</span>
           <select
             value={forkName}
             onChange={(e) => onForkChange(e.target.value as ForkName)}
             className="bg-[var(--color-surface-overlay)] text-[var(--color-text-primary)] text-[12px] font-mono rounded-md px-2.5 py-1 border border-[var(--color-border)] focus:border-[var(--color-border-focus)] focus:outline-none cursor-pointer"
           >
-            {forkNames.map((name) => (
+            {visibleModules.map((name) => (
               <option key={name} value={name}>
                 {name}
               </option>
@@ -76,6 +97,16 @@ export function Toolbar({forkName, typeName, serializeMode, onForkChange, onType
               </option>
             ))}
           </select>
+        </div>
+
+        {/* Sources menu */}
+        <div className="ml-auto">
+          <SourcesMenu
+            isEnabled={isSourceEnabled}
+            onToggle={onToggleSource}
+            onEnableAll={onEnableAllSources}
+            onDisableAll={onDisableAllSources}
+          />
         </div>
       </div>
     </div>

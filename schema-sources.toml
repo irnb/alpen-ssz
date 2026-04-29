@@ -1,0 +1,55 @@
+# Default paths assume sibling clones in the same parent directory:
+#   <parent>/alpen
+#   <parent>/asm
+#   <parent>/strata-common
+#   <parent>/alpen-ssz   (this repo)
+#
+# Override per-developer with `schema-sources.local.toml` (gitignored).
+
+[sources.alpen]
+url = "https://github.com/alpenlabs/alpen"
+path = "../alpen"
+modules = [
+  "crates/acct-types/ssz",
+  "crates/snark-acct-types/ssz",
+  "crates/ol/chain-types/ssz",
+  "crates/ol/state-types/ssz",
+  "crates/ee-chain-types/ssz",
+  "crates/ee-acct-types/ssz",
+]
+
+[sources.asm]
+url = "https://github.com/alpenlabs/asm"
+path = "../asm"
+modules = [
+  "crates/common/ssz",
+  "crates/manifest-types/ssz",
+  "crates/subprotocols/checkpoint/types/ssz",
+]
+
+[sources.strata-common]
+url = "https://github.com/alpenlabs/strata-common"
+path = "../strata-common"
+modules = [
+  "crates/merkle/ssz",
+  "crates/predicate/ssz",
+]
+
+# External Rust crates referenced via `import <name>` in .ssz files.
+# These are not parsed; codegen looks up TypeScript shims for their types in
+# tools/ssz-to-ts/external_stubs.rs.
+[external_modules]
+names = [
+  "strata_identifiers",
+  "strata_btc_types",
+  "block_flags",
+  "strata_acct_types",
+  "strata_snark_acct_types",
+  "strata_asm_common",
+  "strata_asm_manifest_types",
+  "strata_ee_chain_types",
+  "strata_predicate",
+  "strata_merkle",
+  "strata_ol_chain_types",
+  "strata_ol_state_types",
+]

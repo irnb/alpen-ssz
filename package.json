@@ -1,12 +1,14 @@
 {
 	"private": true,
-	"name": "simpleserialize.com",
-	"version": "1.0.0",
+	"name": "alpen-ssz",
+	"version": "0.1.0",
 	"type": "module",
-	"repository": "https://github.com/chainsafe/simpleserialize.com",
-	"author": "Chainsafe Systems",
-	"license": "MIT",
+	"author": "Alpen Labs",
+	"license": "LGPL-3.0",
 	"scripts": {
+		"codegen": "cargo run --release --manifest-path tools/ssz-to-ts/Cargo.toml -- --config schema-sources.toml --out src/generated",
+		"prebuild": "npm run codegen",
+		"predev": "npm run codegen",
 		"dev": "vite",
 		"build": "tsc && vite build",
 		"preview": "vite preview",
@@ -16,7 +18,6 @@
 	},
 	"dependencies": {
 		"@chainsafe/ssz": "^1.2.1",
-		"@lodestar/types": "^1.34.0",
 		"comlink": "^4.4.2",
 		"js-yaml": "^4.1.0",
 		"react": "^19.0.0",

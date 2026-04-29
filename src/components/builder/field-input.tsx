@@ -8,9 +8,14 @@ import {
   ContainerType,
   ListBasicType,
   ListCompositeType,
+  NoneType,
+  OptionalType,
+  ProfileType,
+  StableContainerType,
   type Type,
   UintBigintType,
   UintNumberType,
+  UnionType,
   VectorBasicType,
   VectorCompositeType,
 } from "@chainsafe/ssz";
@@ -137,7 +142,7 @@ export function FieldInput({type, value, onChange, fieldName, depth = 0}: FieldI
     );
   }
 
-  // Container
+  // Container (also covers StableContainer + Profile because they extend ContainerType)
   if (type instanceof ContainerType) {
     return (
       <ContainerField
@@ -148,6 +153,62 @@ export function FieldInput({type, value, onChange, fieldName, depth = 0}: FieldI
         typeName={typeName}
         depth={depth}
       />
+    );
+  }
+
+  // StableContainer / Profile — render like Container but with an "active fields"
+  // toggle per Optional field. (StableContainerType doesn't extend ContainerType
+  // in @chainsafe/ssz; it's its own class with a `fields` map.)
+  if (type instanceof StableContainerType || type instanceof ProfileType) {
+    return (
+      <StableContainerField
+        // biome-ignore lint/suspicious/noExplicitAny: shared shape for both
+        type={type as any}
+        value={value}
+        onChange={onChange}
+        fieldName={fieldName}
+        typeName={typeName}
+        depth={depth}
+      />
+    );
+  }
+
+  // Optional[T]
+  if (type instanceof OptionalType) {
+    return (
+      <OptionalField
+        // biome-ignore lint/suspicious/noExplicitAny: elementType is generic
+        type={type as any}
+        value={value}
+        onChange={onChange}
+        fieldName={fieldName}
+        typeName={typeName}
+        depth={depth}
+      />
+    );
+  }
+
+  // Union[A, B, C]
+  if (type instanceof UnionType) {
+    return (
+      <UnionField
+        // biome-ignore lint/suspicious/noExplicitAny: types is generic
+        type={type as any}
+        value={value}
+        onChange={onChange}
+        fieldName={fieldName}
+        typeName={typeName}
+        depth={depth}
+      />
+    );
+  }
+
+  // None — always renders nothing meaningful
+  if (type instanceof NoneType) {
+    return (
+      <LeafRow fieldName={fieldName} typeName={typeName} category={category}>
+        <span className="text-[11px] text-[var(--color-text-muted)]">none</span>
+      </LeafRow>
     );
   }
 
@@ -497,6 +558,198 @@ function BitField({
               </>
             )}
           </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function StableContainerField({
+  type,
+  value,
+  onChange,
+  fieldName,
+  typeName,
+  depth,
+}: {
+  // biome-ignore lint/suspicious/noExplicitAny: StableContainerType / ProfileType have similar shape
+  type: any;
+  value: unknown;
+  onChange: (value: unknown) => void;
+  fieldName: string;
+  typeName: string;
+  depth: number;
+}) {
+  const [expanded, setExpanded] = useState(depth < 2);
+  const fields = type.fields as Record<string, Type<unknown>>;
+  const fieldNames = Object.keys(fields);
+  const obj = (value && typeof value === "object" ? value : {}) as Record<string, unknown>;
+
+  const handleFieldChange = (fieldKey: string, fieldValue: unknown) => {
+    onChange({...obj, [fieldKey]: fieldValue});
+  };
+
+  return (
+    <div>
+      <div
+        className="flex items-center gap-1.5 py-[3px] cursor-pointer hover:bg-[var(--color-surface-overlay)]/40 rounded px-1 -mx-1"
+        onClick={() => setExpanded(!expanded)}
+      >
+        <span
+          className={`text-[10px] transition-transform duration-150 text-[var(--color-text-muted)] select-none ${expanded ? "rotate-90" : ""}`}
+        >
+          &#9654;
+        </span>
+        <span className="text-[12px] font-mono text-[var(--color-text-primary)]">{fieldName}</span>
+        <span className="text-[10px] font-mono text-[var(--color-ssz-container)]/60">{typeName}</span>
+        <span className="text-[10px] text-[var(--color-text-muted)]/40">stable {fieldNames.length} fields</span>
+      </div>
+      {expanded && (
+        <div className="ml-3 pl-3 border-l border-[var(--color-border)]/40">
+          {fieldNames.map((key) => (
+            <FieldInput
+              key={key}
+              type={fields[key]}
+              value={obj[key]}
+              onChange={(v) => handleFieldChange(key, v)}
+              fieldName={key}
+              depth={depth + 1}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function OptionalField({
+  type,
+  value,
+  onChange,
+  fieldName,
+  typeName,
+  depth,
+}: {
+  // biome-ignore lint/suspicious/noExplicitAny: OptionalType has elementType
+  type: any;
+  value: unknown;
+  onChange: (value: unknown) => void;
+  fieldName: string;
+  typeName: string;
+  depth: number;
+}) {
+  const elementType = type.elementType as Type<unknown>;
+  const isPresent = value !== undefined && value !== null;
+
+  const togglePresence = () => {
+    if (isPresent) {
+      onChange(null);
+    } else {
+      onChange(elementType.defaultValue());
+    }
+  };
+
+  return (
+    <div>
+      <div className="flex items-center gap-2 py-[3px] min-h-[28px]">
+        <span className="text-[12px] font-mono text-[var(--color-text-primary)] min-w-[120px] shrink-0">
+          {fieldName}
+        </span>
+        <span className="text-[10px] font-mono text-[var(--color-ssz-container)]/60 min-w-[80px] shrink-0">
+          {typeName}
+        </span>
+        <button
+          onClick={togglePresence}
+          className={`px-2 py-0.5 text-[10px] font-mono rounded-md border transition-all ${
+            isPresent
+              ? "bg-[var(--color-ssz-boolean)]/15 border-[var(--color-ssz-boolean)]/30 text-[var(--color-ssz-boolean)]"
+              : "bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-text-muted)]"
+          }`}
+        >
+          {isPresent ? "present" : "absent"}
+        </button>
+      </div>
+      {isPresent && (
+        <div className="ml-3 pl-3 border-l border-[var(--color-border)]/40">
+          <FieldInput
+            type={elementType}
+            value={value}
+            onChange={onChange}
+            fieldName="value"
+            depth={depth + 1}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function UnionField({
+  type,
+  value,
+  onChange,
+  fieldName,
+  typeName,
+  depth,
+}: {
+  // biome-ignore lint/suspicious/noExplicitAny: UnionType.types is generic
+  type: any;
+  value: unknown;
+  onChange: (value: unknown) => void;
+  fieldName: string;
+  typeName: string;
+  depth: number;
+}) {
+  const variants = (type.types as Type<unknown>[]) ?? [];
+  const obj = (value && typeof value === "object" ? value : {}) as {selector?: number; value?: unknown};
+  const selector = typeof obj.selector === "number" ? obj.selector : 0;
+  const variantType = variants[selector];
+
+  const handleSelectorChange = (next: number) => {
+    if (variants[next] instanceof NoneType) {
+      onChange({selector: next, value: null});
+    } else {
+      onChange({selector: next, value: variants[next]?.defaultValue() ?? null});
+    }
+  };
+
+  const handleVariantChange = (v: unknown) => {
+    onChange({selector, value: v});
+  };
+
+  return (
+    <div>
+      <div className="flex items-center gap-2 py-[3px] min-h-[28px]">
+        <span className="text-[12px] font-mono text-[var(--color-text-primary)] min-w-[120px] shrink-0">
+          {fieldName}
+        </span>
+        <span className="text-[10px] font-mono text-[var(--color-ssz-container)]/60 min-w-[80px] shrink-0">
+          {typeName}
+        </span>
+        <select
+          value={selector}
+          onChange={(e) => handleSelectorChange(Number(e.target.value))}
+          className="bg-[var(--color-surface-overlay)] text-[var(--color-text-primary)] text-[12px] font-mono rounded-md px-2 py-0.5 border border-[var(--color-border)] focus:border-[var(--color-border-focus)] focus:outline-none cursor-pointer"
+        >
+          {variants.map((v: Type<unknown>, i: number) => {
+            const label = v instanceof NoneType ? `none[${i}]` : `variant[${i}] ${getTypeName(v)}`;
+            return (
+              <option key={i} value={i}>
+                {label}
+              </option>
+            );
+          })}
+        </select>
+      </div>
+      {variantType && !(variantType instanceof NoneType) && (
+        <div className="ml-3 pl-3 border-l border-[var(--color-border)]/40">
+          <FieldInput
+            type={variantType}
+            value={obj.value}
+            onChange={handleVariantChange}
+            fieldName="value"
+            depth={depth + 1}
+          />
         </div>
       )}
     </div>

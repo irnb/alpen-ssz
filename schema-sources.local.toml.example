@@ -1,0 +1,11 @@
+# Copy this file to `schema-sources.local.toml` (gitignored) to override
+# any source's `path` without modifying the committed `schema-sources.toml`.
+#
+# Example: point at a feature-branch checkout while preserving the default
+# module list from `schema-sources.toml`.
+
+# [sources.alpen]
+# path = "../alpen-b"
+
+# [sources.asm]
+# path = "/absolute/path/to/asm"
