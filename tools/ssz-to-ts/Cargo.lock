@@ -219,6 +219,7 @@ dependencies = [
 [[package]]
 name = "sizzle-parser"
 version = "0.15.0"
+source = "git+https://github.com/alpenlabs/ssz-gen?rev=6e4b99ef2831ea3a97b8cb98a88c06206395f337#6e4b99ef2831ea3a97b8cb98a88c06206395f337"
 dependencies = [
  "thiserror",
 ]

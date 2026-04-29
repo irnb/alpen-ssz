@@ -8,7 +8,10 @@ name = "ssz-to-ts"
 path = "src/main.rs"
 
 [dependencies]
-sizzle-parser = { path = "../../../ssz-gen/crates/sizzle-parser" }
+# Pinned to a known-good rev of alpenlabs/ssz-gen. To hack against a local
+# checkout, replace this line temporarily with:
+#   sizzle-parser = { path = "../../../ssz-gen/crates/sizzle-parser" }
+sizzle-parser = { git = "https://github.com/alpenlabs/ssz-gen", rev = "6e4b99ef2831ea3a97b8cb98a88c06206395f337" }
 clap = { version = "4", features = ["derive"] }
 serde = { version = "1", features = ["derive"] }
 toml = "0.8"
