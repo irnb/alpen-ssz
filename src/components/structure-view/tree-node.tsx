@@ -1,5 +1,6 @@
 import {useState} from "react";
-import {type TreeNodeData, categoryColors} from "./utils";
+import {decodeAndFormatOlStateDiff} from "../../lib/strata-codec";
+import {type RustCodecKind, type TreeNodeData, categoryColors} from "./utils";
 
 type TreeNodeProps = {
   node: TreeNodeData;
@@ -7,6 +8,16 @@ type TreeNodeProps = {
 };
 
 const VALUE_TRUNCATE_LEN = 64;
+
+const RUST_CODEC_LABEL: Record<RustCodecKind, string> = {
+  olStateDiff: "OLDaPayloadV1 (strata_codec)",
+};
+
+const RUST_CODEC_TOOLTIP: Record<RustCodecKind, string> = {
+  olStateDiff:
+    "These bytes are an OLDaPayloadV1 encoded with strata_codec — a separate Rust framework, not SSZ. " +
+    "Decoding here mirrors decode_ol_da_payload_bytes in alpen/crates/ol/da/src/types/payload.rs.",
+};
 
 function LeafValue({value, suffix}: {value: string; suffix: string | null}) {
   const [expanded, setExpanded] = useState(false);
@@ -29,10 +40,54 @@ function LeafValue({value, suffix}: {value: string; suffix: string | null}) {
       ) : (
         <>
           {value.slice(0, VALUE_TRUNCATE_LEN)}
-          <span className="text-[var(--color-text-muted)]">{suffix ? `\u2026 ${suffix}` : "\u2026"}</span>
+          <span className="text-[var(--color-text-muted)]">{suffix ? `… ${suffix}` : "…"}</span>
         </>
       )}
     </span>
+  );
+}
+
+function decodeBytes(kind: RustCodecKind, bytes: Uint8Array): {ok: true; text: string} | {ok: false; error: string} {
+  try {
+    if (kind === "olStateDiff") {
+      return {ok: true, text: decodeAndFormatOlStateDiff(bytes)};
+    }
+    return {ok: false, error: `unknown rust codec kind: ${kind}`};
+  } catch (e) {
+    return {ok: false, error: e instanceof Error ? e.message : String(e)};
+  }
+}
+
+function RustCodecPanel({kind, bytes}: {kind: RustCodecKind; bytes: Uint8Array}) {
+  const [decoded, setDecoded] = useState<{ok: true; text: string} | {ok: false; error: string} | null>(null);
+
+  return (
+    <div className="ml-7 mt-1 mb-1">
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            setDecoded(decodeBytes(kind, bytes));
+          }}
+          className="px-2 py-0.5 text-[10px] font-mono rounded bg-[var(--color-surface-overlay)] text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)] border border-[var(--color-border)] hover:border-[var(--color-text-muted)]/30 transition-all"
+        >
+          Decode as {RUST_CODEC_LABEL[kind]}
+        </button>
+        <span className="text-[10px] text-[var(--color-text-muted)]/70 cursor-help" title={RUST_CODEC_TOOLTIP[kind]}>
+          (?) not SSZ
+        </span>
+      </div>
+      {decoded && (
+        <pre
+          className={`mt-1.5 p-2.5 rounded bg-[var(--color-surface)] border ${
+            decoded.ok ? "border-[var(--color-border)]" : "border-red-500/30"
+          } text-[11px] font-mono text-[var(--color-text-secondary)] overflow-auto max-h-96 leading-relaxed whitespace-pre`}
+        >
+          {decoded.ok ? decoded.text : `decode error: ${decoded.error}`}
+        </pre>
+      )}
+    </div>
   );
 }
 
@@ -79,6 +134,9 @@ export function TreeNode({node, depth = 0}: TreeNodeProps) {
         {/* Value (leaf nodes) */}
         {node.value != null && <LeafValue value={node.value} suffix={node.valueSuffix} />}
       </div>
+
+      {/* Rust-codec decode panel for opaque byte fields like sidecar.ol_state_diff. */}
+      {node.rustCodec && node.rawBytes && <RustCodecPanel kind={node.rustCodec} bytes={node.rawBytes} />}
 
       {/* Children */}
       {expanded && hasChildren && (

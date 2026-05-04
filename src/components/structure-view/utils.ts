@@ -19,6 +19,20 @@ import {
   VectorBasicType,
   VectorCompositeType,
 } from "@chainsafe/ssz";
+import {CheckpointSidecar} from "../../generated/modules/subprotocols-checkpoint-types-payload";
+
+// SSZ types whose bytes are actually wire-encoded with strata_codec (Rust-side
+// framework, not SSZ). When we encounter one of these, the inspector offers a
+// secondary decode pass via the schemas in src/lib/strata-codec.ts.
+//
+// Identity-based: each entry references the unique Type instance from the
+// generated SSZ schema, so renaming the field name elsewhere would not match
+// here by accident.
+const RUST_CODEC_TYPES = new Map<Type<unknown>, RustCodecKind>([
+  [CheckpointSidecar.fields.ol_state_diff as Type<unknown>, "olStateDiff"],
+]);
+
+export type RustCodecKind = "olStateDiff";
 
 export type SszCategory = "uint" | "bytes" | "container" | "list" | "boolean" | "unknown";
 
@@ -31,17 +45,17 @@ export type TreeNodeData = {
   valueSuffix: string | null;
   children: TreeNodeData[] | null;
   gindex: string;
+  /** Raw bytes — populated for byte leaves whose contents need a follow-up decode. */
+  rawBytes: Uint8Array | null;
+  /** When set, these bytes are decodable via a non-SSZ Rust codec. */
+  rustCodec: RustCodecKind | null;
 };
 
 export function getCategory(type: Type<unknown>): SszCategory {
   if (type instanceof UintNumberType || type instanceof UintBigintType) return "uint";
   if (type instanceof ByteVectorType || type instanceof ByteListType) return "bytes";
   if (type instanceof BooleanType || type instanceof BitListType || type instanceof BitVectorType) return "boolean";
-  if (
-    type instanceof ContainerType ||
-    type instanceof StableContainerType ||
-    type instanceof ProfileType
-  )
+  if (type instanceof ContainerType || type instanceof StableContainerType || type instanceof ProfileType)
     return "container";
   if (type instanceof UnionType || type instanceof OptionalType) return "container";
   if (
@@ -109,18 +123,13 @@ export function buildTree(type: Type<unknown>, data: unknown, key: string, ginde
 
   if (isLeafType(type)) {
     const {text, suffix} = formatValue(data);
-    return {key, typeName, category, value: text, valueSuffix: suffix, children: null, gindex};
+    const rustCodec = RUST_CODEC_TYPES.get(type) ?? null;
+    const rawBytes = rustCodec && data instanceof Uint8Array ? data : null;
+    return {key, typeName, category, value: text, valueSuffix: suffix, children: null, gindex, rawBytes, rustCodec};
   }
 
-  if (
-    type instanceof ContainerType ||
-    type instanceof StableContainerType ||
-    type instanceof ProfileType
-  ) {
-    const fields = (type as ContainerType<Record<string, Type<unknown>>>).fields as Record<
-      string,
-      Type<unknown>
-    >;
+  if (type instanceof ContainerType || type instanceof StableContainerType || type instanceof ProfileType) {
+    const fields = (type as ContainerType<Record<string, Type<unknown>>>).fields as Record<string, Type<unknown>>;
     const fieldNames = Object.keys(fields);
     const depth = Math.ceil(Math.log2(Math.max(fieldNames.length, 1)));
     const children = fieldNames.map((fieldName, i) => {
@@ -128,7 +137,7 @@ export function buildTree(type: Type<unknown>, data: unknown, key: string, ginde
       const fieldData = data && typeof data === "object" ? (data as Record<string, unknown>)[fieldName] : undefined;
       return buildTree(fields[fieldName], fieldData, fieldName, fieldGindex);
     });
-    return {key, typeName, category, value: null, valueSuffix: null, children, gindex};
+    return {key, typeName, category, value: null, valueSuffix: null, children, gindex, rawBytes: null, rustCodec: null};
   }
 
   if (type instanceof OptionalType) {
@@ -142,6 +151,8 @@ export function buildTree(type: Type<unknown>, data: unknown, key: string, ginde
         valueSuffix: null,
         children: null,
         gindex,
+        rawBytes: null,
+        rustCodec: null,
       };
     }
     return buildTree(inner, data, key, gindex);
@@ -161,10 +172,22 @@ export function buildTree(type: Type<unknown>, data: unknown, key: string, ginde
         valueSuffix: null,
         children: null,
         gindex,
+        rawBytes: null,
+        rustCodec: null,
       };
     }
     const child = buildTree(variantType, obj.value, `variant[${selector}]`, gindex);
-    return {key, typeName, category, value: null, valueSuffix: null, children: [child], gindex};
+    return {
+      key,
+      typeName,
+      category,
+      value: null,
+      valueSuffix: null,
+      children: [child],
+      gindex,
+      rawBytes: null,
+      rustCodec: null,
+    };
   }
 
   if (
@@ -189,13 +212,35 @@ export function buildTree(type: Type<unknown>, data: unknown, key: string, ginde
         valueSuffix: null,
         children: null,
         gindex: "",
+        rawBytes: null,
+        rustCodec: null,
       });
     }
-    return {key, typeName: `${typeName} (${items.length})`, category, value: null, valueSuffix: null, children, gindex};
+    return {
+      key,
+      typeName: `${typeName} (${items.length})`,
+      category,
+      value: null,
+      valueSuffix: null,
+      children,
+      gindex,
+      rawBytes: null,
+      rustCodec: null,
+    };
   }
 
   const {text, suffix} = formatValue(data);
-  return {key, typeName, category, value: text, valueSuffix: suffix, children: null, gindex};
+  return {
+    key,
+    typeName,
+    category,
+    value: text,
+    valueSuffix: suffix,
+    children: null,
+    gindex,
+    rawBytes: null,
+    rustCodec: null,
+  };
 }
 
 export const categoryColors: Record<SszCategory, string> = {

@@ -64,6 +64,18 @@
       "javascript": {
         "globals": ["JSX"]
       }
+    },
+    {
+      // strata-codec mirrors Rust struct fields verbatim (snake_case) so that
+      // the pretty-printer output matches Rust Debug layout.
+      "include": ["src/lib/strata-codec.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "useNamingConvention": "off"
+          }
+        }
+      }
     }
   ]
 }

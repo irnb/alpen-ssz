@@ -14,3 +14,6 @@ tools/ssz-to-ts/target
 
 # Local IDE / agent config
 .claude/
+
+
+tools/ol-da-decoder-wasm/target
