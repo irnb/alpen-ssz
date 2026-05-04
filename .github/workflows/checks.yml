@@ -7,6 +7,53 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      # Source repos consumed by the codegen. These are public so the default
+      # GITHUB_TOKEN reads them — no PAT setup required. actions/checkout@v4
+      # refuses paths outside the workspace, so we put them under _external/
+      # and override schema-sources.toml paths via schema-sources.local.toml.
+      - name: Checkout alpen
+        uses: actions/checkout@v4
+        with:
+          repository: alpenlabs/alpen
+          path: _external/alpen
+          ref: main
+
+      - name: Checkout asm
+        uses: actions/checkout@v4
+        with:
+          repository: alpenlabs/asm
+          path: _external/asm
+          ref: main
+
+      - name: Checkout strata-common
+        uses: actions/checkout@v4
+        with:
+          repository: alpenlabs/strata-common
+          path: _external/strata-common
+          ref: main
+
+      - name: Generate schema-sources.local.toml override
+        run: |
+          cat > schema-sources.local.toml <<'EOF'
+          [sources.alpen]
+          path = "_external/alpen"
+
+          [sources.asm]
+          path = "_external/asm"
+
+          [sources.strata-common]
+          path = "_external/strata-common"
+          EOF
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: tools/ssz-to-ts -> tools/ssz-to-ts/target
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
