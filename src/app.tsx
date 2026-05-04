@@ -119,7 +119,7 @@ export default function App() {
     (newFork: ForkName) => {
       setForkName(newFork);
       const types = typeNames(forks[newFork] ?? {});
-      const nextType = types.includes(typeName) ? typeName : types[0] ?? "";
+      const nextType = types.includes(typeName) ? typeName : (types[0] ?? "");
       if (nextType !== typeName) setTypeName(nextType);
       setInput("");
       setParsedValue(null);

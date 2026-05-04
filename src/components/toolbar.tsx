@@ -69,7 +69,9 @@ export function Toolbar({
 
         {/* Fork */}
         <div className="flex items-center gap-1.5">
-          <span className="text-[10px] text-[var(--color-text-muted)] uppercase tracking-widest font-medium">Module</span>
+          <span className="text-[10px] text-[var(--color-text-muted)] uppercase tracking-widest font-medium">
+            Module
+          </span>
           <select
             value={forkName}
             onChange={(e) => onForkChange(e.target.value as ForkName)}

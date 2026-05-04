@@ -37,9 +37,7 @@ export function SourcesMenu({isEnabled, onToggle, onEnableAll, onDisableAll}: Pr
         className="px-2.5 py-1 text-[11px] font-mono rounded-md bg-[var(--color-surface-overlay)] text-[var(--color-text-secondary)] border border-[var(--color-border)] hover:border-[var(--color-border-focus)] transition-all flex items-center gap-1.5"
         title="Source repos"
       >
-        <span className="text-[10px] text-[var(--color-text-muted)] uppercase tracking-widest">
-          Sources
-        </span>
+        <span className="text-[10px] text-[var(--color-text-muted)] uppercase tracking-widest">Sources</span>
         <span className="text-[var(--color-eth-blue)]">
           {enabledCount}/{sources.length}
         </span>
@@ -88,9 +86,7 @@ export function SourcesMenu({isEnabled, onToggle, onEnableAll, onDisableAll}: Pr
                   </button>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-[12px] font-mono text-[var(--color-text-primary)]">
-                        {s.name}
-                      </span>
+                      <span className="text-[12px] font-mono text-[var(--color-text-primary)]">{s.name}</span>
                       <span className="text-[9px] text-[var(--color-text-muted)]/60">
                         {s.modules.length} module{s.modules.length === 1 ? "" : "s"}
                       </span>

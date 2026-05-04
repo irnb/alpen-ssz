@@ -671,13 +671,7 @@ function OptionalField({
       </div>
       {isPresent && (
         <div className="ml-3 pl-3 border-l border-[var(--color-border)]/40">
-          <FieldInput
-            type={elementType}
-            value={value}
-            onChange={onChange}
-            fieldName="value"
-            depth={depth + 1}
-          />
+          <FieldInput type={elementType} value={value} onChange={onChange} fieldName="value" depth={depth + 1} />
         </div>
       )}
     </div>

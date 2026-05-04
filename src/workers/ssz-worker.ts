@@ -8,10 +8,7 @@ import * as Comlink from "comlink";
 // Lazy-load SSZ libraries via dynamic import so they resolve
 // AFTER the Buffer polyfill assignment above has executed.
 const libs = (async () => {
-  const [{inputFormats}, {forks}] = await Promise.all([
-    import("../lib/formats"),
-    import("../lib/types"),
-  ]);
+  const [{inputFormats}, {forks}] = await Promise.all([import("../lib/formats"), import("../lib/types")]);
   return {inputFormats, forks};
 })();
 

@@ -29,8 +29,7 @@ function readStrataVarint(bytes: Uint8Array): {length: number; headerSize: numbe
   }
   // tag === 3
   if (bytes.length < 4) return null;
-  const value =
-    ((b0 & 0x3f) << 24) | (bytes[1] << 16) | (bytes[2] << 8) | bytes[3];
+  const value = ((b0 & 0x3f) << 24) | (bytes[1] << 16) | (bytes[2] << 8) | bytes[3];
   return {length: value >>> 0, headerSize: 4};
 }
 
@@ -75,8 +74,7 @@ export const inputFormats: Record<string, InputFormat> = {
    * `<varint length><SSZ T>`; we strip the varint and decode the SSZ portion.
    */
   envelope: {
-    parse: (raw, type) =>
-      type.deserialize(stripStrataCodecPrefix(fromHexString(raw))),
+    parse: (raw, type) => type.deserialize(stripStrataCodecPrefix(fromHexString(raw))),
     dump: (value, type) => {
       const ssz = type.serialize(value as never);
       // Re-emit `<varint length><ssz>` so a paste-and-dump round-trips.
@@ -99,12 +97,7 @@ function encodeStrataVarint(value: number): Uint8Array {
     return new Uint8Array([(v >> 8) & 0xff, v & 0xff]);
   }
   const v = value | 0xc0000000;
-  return new Uint8Array([
-    (v >>> 24) & 0xff,
-    (v >>> 16) & 0xff,
-    (v >>> 8) & 0xff,
-    v & 0xff,
-  ]);
+  return new Uint8Array([(v >>> 24) & 0xff, (v >>> 16) & 0xff, (v >>> 8) & 0xff, v & 0xff]);
 }
 
 // --- Output formats (for displaying results) ---

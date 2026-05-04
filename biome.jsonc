@@ -11,6 +11,8 @@
     "rules": {
       "suspicious": {
         "noConsoleLog": "off",
+        // Error-boundary uses console.error to surface React render failures.
+        "noConsole": "off",
         // SSZ list/vector items have no stable key other than index
         "noArrayIndexKey": "off"
       },
